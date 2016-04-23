@@ -1,4 +1,4 @@
-package helpers_test
+package str_test
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestGoHelpers(t *testing.T) {
+func TestStr(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "GoHelpers Suite")
+	RunSpecs(t, "Str Suite")
 }

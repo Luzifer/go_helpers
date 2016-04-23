@@ -1,7 +1,7 @@
-package helpers_test
+package str_test
 
 import (
-	. "github.com/Luzifer/go_helpers"
+	. "github.com/Luzifer/go_helpers/str"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
