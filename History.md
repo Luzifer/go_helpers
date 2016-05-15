@@ -1,3 +1,7 @@
+# 1.2.0 / 2016-05-16
+
+  * Added helper to find binaries in path or directory
+
 # 1.1.0 / 2016-05-06
 
   * Added Haversine helper functions
