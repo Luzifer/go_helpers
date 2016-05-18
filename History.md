@@ -1,3 +1,7 @@
+# 1.3.0 / 2016-05-18
+
+  * Added AccessLogResponseWriter
+
 # 1.2.0 / 2016-05-16
 
   * Added helper to find binaries in path or directory
