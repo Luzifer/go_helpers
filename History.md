@@ -1,3 +1,7 @@
+# 1.4.0 / 2016-05-29
+
+  * Added environment helpers
+
 # 1.3.0 / 2016-05-18
 
   * Added AccessLogResponseWriter
