@@ -1,3 +1,8 @@
+# 2.0.0 / 2016-10-12
+
+  * Drop Go1.5 / Go1.6 support with using contexts
+  * Add github-binary update helper
+
 # 1.4.0 / 2016-05-29
 
   * Added environment helpers
