@@ -1,3 +1,7 @@
+# 2.1.0 / 2016-12-23
+
+  * Add time.Duration formatter
+
 # 2.0.0 / 2016-10-12
 
   * Drop Go1.5 / Go1.6 support with using contexts
