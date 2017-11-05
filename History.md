@@ -1,3 +1,8 @@
+# 2.3.1 / 2017-11-05
+
+  * Fix TIP version error: Sprintf format %s has arg of wrong type byte
+  * Travis: Test on Go 1.7, 1.8, 1.9, tip
+
 # 2.3.0 / 2017-11-05
 
   * Implement digest header generation
