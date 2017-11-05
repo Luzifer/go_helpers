@@ -1,3 +1,7 @@
+# 2.3.0 / 2017-11-05
+
+  * Implement digest header generation
+
 # 2.2.0 / 2017-04-13
 
   * Add HTTPLogHandler
