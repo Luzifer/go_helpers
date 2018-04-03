@@ -1,3 +1,7 @@
+# 2.4.0 / 2018-04-03
+
+  * Add proxy IP detection
+
 # 2.3.1 / 2017-11-05
 
   * Fix TIP version error: Sprintf format %s has arg of wrong type byte
