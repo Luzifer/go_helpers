@@ -1,3 +1,7 @@
+# 2.5.0 / 2018-04-23
+
+  * Add output splitter
+
 # 2.4.0 / 2018-04-03
 
   * Add proxy IP detection
