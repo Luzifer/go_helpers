@@ -1,3 +1,7 @@
+# 2.6.0 / 2018-06-07
+
+  * Add a YAML to JSON converter as yaml-helper
+
 # 2.5.0 / 2018-04-23
 
   * Add output splitter
