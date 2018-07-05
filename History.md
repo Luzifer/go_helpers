@@ -1,3 +1,7 @@
+# 2.7.0 / 2018-07-05
+
+  * Add helpers to parse time strings using multiple formats at once
+
 # 2.6.0 / 2018-06-07
 
   * Add a YAML to JSON converter as yaml-helper
