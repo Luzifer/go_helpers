@@ -1,3 +1,7 @@
+# 2.8.0 / 2018-09-17
+
+  * Add GZip wrapper
+
 # 2.7.0 / 2018-07-05
 
   * Add helpers to parse time strings using multiple formats at once
