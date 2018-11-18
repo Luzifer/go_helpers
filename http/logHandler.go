@@ -27,10 +27,15 @@ func (l HTTPLogHandler) ServeHTTP(res http.ResponseWriter, r *http.Request) {
 
 	l.Handler.ServeHTTP(ares, r)
 
+	path := r.URL.Path
+	if q := r.URL.Query().Encode(); len(q) > 0 {
+		path = path + "?" + q
+	}
+
 	log.Printf("%s - \"%s %s\" %d %d \"%s\" \"%s\" %s",
 		l.findIP(r),
 		r.Method,
-		r.URL.Path,
+		path,
 		ares.StatusCode,
 		ares.Size,
 		r.Header.Get("Referer"),
