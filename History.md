@@ -1,3 +1,7 @@
+# 2.8.1 / 2018-11-19
+
+  * Also log query parameters
+
 # 2.8.0 / 2018-09-17
 
   * Add GZip wrapper
