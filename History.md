@@ -1,3 +1,7 @@
+# 2.9.1 / 2019-02-28
+
+  * Fix unversioned import paths
+
 # 2.9.0 / 2019-02-28
 
   * Add support for Go 1.11+ modules
