@@ -1,3 +1,7 @@
+# 2.9.0 / 2019-02-28
+
+  * Add support for Go 1.11+ modules
+
 # 2.8.1 / 2018-11-19
 
   * Also log query parameters
