@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Luzifer/go_helpers/accessLogger"
+	"github.com/Luzifer/go_helpers/v2/accessLogger"
 )
 
 type HTTPLogHandler struct {
