@@ -1,3 +1,7 @@
+# 2.10.0 / 2019-11-15
+
+  * Add backoff retry-helper
+
 # 2.9.1 / 2019-02-28
 
   * Fix unversioned import paths
