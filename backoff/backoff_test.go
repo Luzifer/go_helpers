@@ -53,6 +53,17 @@ func TestMaxIterations(t *testing.T) {
 	}
 }
 
+func TestSuccessfulExecution(t *testing.T) {
+	b := NewBackoff()
+	b.MaxIterations = 5
+
+	err := b.Retry(func() error { return nil })
+
+	if err != nil {
+		t.Errorf("An error was thrown: %s", err)
+	}
+}
+
 func TestWrappedError(t *testing.T) {
 	b := NewBackoff()
 	b.MaxIterations = 5
