@@ -69,6 +69,41 @@ func (b Backoff) Retry(f Retryable) error {
 	}
 }
 
+// WithMaxIterations is a wrapper around setting the MaxIterations
+// and then returning the Backoff object to use in chained creation
+func (b *Backoff) WithMaxIterations(v uint64) *Backoff {
+	b.MaxIterations = v
+	return b
+}
+
+// WithMaxIterationTime is a wrapper around setting the MaxIterationTime
+// and then returning the Backoff object to use in chained creation
+func (b *Backoff) WithMaxIterationTime(v time.Duration) *Backoff {
+	b.MaxIterationTime = v
+	return b
+}
+
+// WithMaxTotalTime is a wrapper around setting the MaxTotalTime
+// and then returning the Backoff object to use in chained creation
+func (b *Backoff) WithMaxTotalTime(v time.Duration) *Backoff {
+	b.MaxTotalTime = v
+	return b
+}
+
+// WithMinIterationTime is a wrapper around setting the MinIterationTime
+// and then returning the Backoff object to use in chained creation
+func (b *Backoff) WithMinIterationTime(v time.Duration) *Backoff {
+	b.MinIterationTime = v
+	return b
+}
+
+// WithMultiplier is a wrapper around setting the Multiplier
+// and then returning the Backoff object to use in chained creation
+func (b *Backoff) WithMultiplier(v float64) *Backoff {
+	b.Multiplier = v
+	return b
+}
+
 func (b Backoff) nextIterationSleep(currentSleep time.Duration) time.Duration {
 	next := time.Duration(float64(currentSleep) * b.Multiplier)
 	if next > b.MaxIterationTime {
