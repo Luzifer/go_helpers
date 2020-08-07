@@ -1,3 +1,9 @@
+# 2.11.0 / 2020-08-07
+
+  * Add convenience wrapper around property sets
+  * Drop support for Go <1.13
+  * Add test for successful execution
+
 # 2.10.0 / 2019-11-15
 
   * Add backoff retry-helper
