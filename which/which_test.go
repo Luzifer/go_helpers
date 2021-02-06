@@ -1,7 +1,7 @@
 package which_test
 
 import (
-	. "github.com/Luzifer/go_helpers/which"
+	. "github.com/Luzifer/go_helpers/v2/which"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

@@ -1,7 +1,7 @@
 package position_test
 
 import (
-	. "github.com/Luzifer/go_helpers/position"
+	. "github.com/Luzifer/go_helpers/v2/position"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

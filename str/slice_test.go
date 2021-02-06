@@ -1,7 +1,7 @@
 package str_test
 
 import (
-	. "github.com/Luzifer/go_helpers/str"
+	. "github.com/Luzifer/go_helpers/v2/str"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

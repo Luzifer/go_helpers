@@ -3,7 +3,7 @@ package env_test
 import (
 	"sort"
 
-	. "github.com/Luzifer/go_helpers/env"
+	. "github.com/Luzifer/go_helpers/v2/env"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

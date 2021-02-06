@@ -3,7 +3,7 @@ package float_test
 import (
 	"math"
 
-	. "github.com/Luzifer/go_helpers/float"
+	. "github.com/Luzifer/go_helpers/v2/float"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
