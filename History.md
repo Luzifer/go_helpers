@@ -1,3 +1,9 @@
+# 2.12.0 / 2021-02-06
+
+  * Update dependencies
+  * Allow to pass in a logger for HTTP logs
+  * Update imports to v2 import paths
+
 # 2.11.0 / 2020-08-07
 
   * Add convenience wrapper around property sets
