@@ -3,18 +3,26 @@ package http
 import (
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/Luzifer/go_helpers/v2/accessLogger"
+	"github.com/sirupsen/logrus"
 )
 
 type HTTPLogHandler struct {
 	Handler          http.Handler
 	TrustedIPHeaders []string
+
+	logger logrus.StdLogger
 }
 
 func NewHTTPLogHandler(h http.Handler) http.Handler {
+	return NewHTTPLogHandlerWithLogger(h, log.New(os.Stderr, "", log.LstdFlags))
+}
+
+func NewHTTPLogHandlerWithLogger(h http.Handler, l logrus.StdLogger) http.Handler {
 	return HTTPLogHandler{
 		Handler:          h,
 		TrustedIPHeaders: []string{"X-Forwarded-For", "RemoteAddr", "X-Real-IP"},
@@ -32,7 +40,7 @@ func (l HTTPLogHandler) ServeHTTP(res http.ResponseWriter, r *http.Request) {
 		path = path + "?" + q
 	}
 
-	log.Printf("%s - \"%s %s\" %d %d \"%s\" \"%s\" %s",
+	l.logger.Printf("%s - \"%s %s\" %d %d \"%s\" \"%s\" %s",
 		l.findIP(r),
 		r.Method,
 		path,
