@@ -26,6 +26,7 @@ func NewHTTPLogHandlerWithLogger(h http.Handler, l logrus.StdLogger) http.Handle
 	return HTTPLogHandler{
 		Handler:          h,
 		TrustedIPHeaders: []string{"X-Forwarded-For", "RemoteAddr", "X-Real-IP"},
+		logger:           l,
 	}
 }
 
