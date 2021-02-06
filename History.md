@@ -1,3 +1,7 @@
+# 2.12.1 / 2021-02-06
+
+  * Fix: Pass in logger
+
 # 2.12.0 / 2021-02-06
 
   * Update dependencies
