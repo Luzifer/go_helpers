@@ -1,3 +1,7 @@
+# 2.12.2 / 2021-03-09
+
+  * Fix: Do not panic on weird env list entries
+
 # 2.12.1 / 2021-02-06
 
   * Fix: Pass in logger
