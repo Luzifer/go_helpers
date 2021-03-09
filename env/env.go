@@ -11,6 +11,10 @@ func ListToMap(list []string) map[string]string {
 		}
 
 		parts := strings.SplitN(entry, "=", 2)
+		if len(parts) == 1 {
+			// No value, set to empty string
+			parts = append(parts, "")
+		}
 		out[parts[0]] = strings.Trim(parts[1], "\"")
 	}
 	return out

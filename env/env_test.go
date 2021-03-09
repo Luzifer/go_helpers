@@ -10,19 +10,20 @@ import (
 )
 
 var _ = Describe("Env", func() {
-
 	Context("ListToMap", func() {
 		var (
 			list = []string{
 				"FIRST_KEY=firstvalue",
 				"SECOND_KEY=secondvalue",
 				"WEIRD=",
+				"NOVALUE",
 				"",
 			}
 			emap = map[string]string{
 				"FIRST_KEY":  "firstvalue",
 				"SECOND_KEY": "secondvalue",
 				"WEIRD":      "",
+				"NOVALUE":    "",
 			}
 		)
 
@@ -51,5 +52,4 @@ var _ = Describe("Env", func() {
 			Expect(l).To(Equal(list))
 		})
 	})
-
 })
