@@ -1,3 +1,7 @@
+# 2.13.0 / 2021-11-20
+
+  * Add `fieldcollection` helper
+
 # 2.12.2 / 2021-03-09
 
   * Fix: Do not panic on weird env list entries
