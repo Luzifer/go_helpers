@@ -1,3 +1,8 @@
+# 2.14.0 / 2023-01-28
+
+  * Add `file.Watcher` helper
+  * [ci] Add test as Github workflow
+
 # 2.13.0 / 2021-11-20
 
   * Add `fieldcollection` helper
