@@ -1,0 +1,34 @@
+---
+
+name: test-and-build
+on: [push]
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        go_version:
+          - '1.18'
+          - '1.19'
+          - 'latest'
+
+    defaults:
+      run:
+        shell: sh
+
+    container:
+      image: golang:${{ matrix.go_version }}
+      env:
+        CGO_ENABLED: 0
+        GOPATH: /go
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Test code
+        run: go test -v -cover ./...
+
+...
