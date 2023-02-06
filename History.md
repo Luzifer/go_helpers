@@ -1,3 +1,7 @@
+# 2.15.0 / 2023-02-06
+
+  * Add `http.LogRoundTripper` helper for request debugging
+
 # 2.14.0 / 2023-01-28
 
   * Add `file.Watcher` helper
