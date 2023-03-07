@@ -1,3 +1,7 @@
+# 2.15.1 / 2023-03-07
+
+  * Update dependencies
+
 # 2.15.0 / 2023-02-06
 
   * Add `http.LogRoundTripper` helper for request debugging
