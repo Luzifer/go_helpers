@@ -83,7 +83,7 @@ func newWatcher(filePath string, interval time.Duration, checks ...WatcherCheck)
 		stateCache: make(map[string]any),
 	}
 	// Initially run checks once
-	_, err := w.runStateChecks(true)
+	_, err := w.runStateChecks()
 
 	return w, errors.Wrap(err, "executing initial checks")
 }
@@ -108,7 +108,7 @@ func (w *Watcher) SetState(key string, value any) {
 
 func (w *Watcher) loop() {
 	for {
-		evt, err := w.runStateChecks(false)
+		evt, err := w.runStateChecks()
 		if err != nil {
 			w.Err = err
 			break
@@ -123,14 +123,16 @@ func (w *Watcher) loop() {
 	}
 }
 
-func (w *Watcher) runStateChecks(runAll bool) (WatcherEvent, error) {
+func (w *Watcher) runStateChecks() (WatcherEvent, error) {
 	for _, c := range w.checks {
 		evt, err := c(w)
 		if err != nil {
 			return WatcherEventInvalid, errors.Wrap(err, "checking file state")
 		}
 
-		if evt == WatcherEventNoChange && !runAll {
+		if evt == WatcherEventNoChange {
+			// Watcher noticed no change, ask the next one. If one notices
+			// a change we will return that one.
 			continue
 		}
 
