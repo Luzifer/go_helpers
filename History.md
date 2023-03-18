@@ -1,3 +1,7 @@
+# 2.15.3 / 2023-03-18
+
+  * Fix: Tests broken after last change
+
 # 2.15.2 / 2023-03-18
 
   * Fix logic bug in run loop, replace Stat with Lstat
