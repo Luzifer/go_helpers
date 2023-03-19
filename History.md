@@ -1,3 +1,8 @@
+# 2.16.0 / 2023-03-19
+
+  * Allow to set watcher to follow symlinks
+  * Drop support for Go 1.18 in tests
+
 # 2.15.3 / 2023-03-18
 
   * Fix: Tests broken after last change
