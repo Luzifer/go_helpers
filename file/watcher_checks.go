@@ -29,7 +29,7 @@ func WatcherCheckHash(hcf func() hash.Hash) WatcherCheck {
 			lastHash = v
 		}
 
-		if _, err := os.Lstat(w.FilePath); errors.Is(err, fs.ErrNotExist) {
+		if _, err := w.stat(w.FilePath); errors.Is(err, fs.ErrNotExist) {
 			return WatcherEventInvalid, nil
 		}
 
@@ -65,7 +65,7 @@ func WatcherCheckMtime(w *Watcher) (WatcherEvent, error) {
 		lastChange = v
 	}
 
-	s, err := os.Lstat(w.FilePath)
+	s, err := w.stat(w.FilePath)
 	switch {
 	case err == nil:
 		// handle size change
@@ -94,7 +94,7 @@ func WatcherCheckPresence(w *Watcher) (WatcherEvent, error) {
 		wasPresent = v
 	}
 
-	_, err := os.Lstat(w.FilePath)
+	_, err := w.stat(w.FilePath)
 	if err != nil && !errors.Is(err, fs.ErrNotExist) {
 		// Some weird error occurred
 		return WatcherEventInvalid, errors.Wrap(err, "getting file stat")
@@ -124,7 +124,7 @@ func WatcherCheckSize(w *Watcher) (WatcherEvent, error) {
 		knownSize = v
 	}
 
-	s, err := os.Lstat(w.FilePath)
+	s, err := w.stat(w.FilePath)
 	switch {
 	case err == nil:
 		// handle size change

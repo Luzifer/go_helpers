@@ -2,6 +2,7 @@ package file
 
 import (
 	"crypto/sha256"
+	"os"
 	"sync"
 	"time"
 
@@ -18,10 +19,11 @@ type (
 		Err           error
 		FilePath      string
 
-		c          chan WatcherEvent
-		checks     []WatcherCheck
-		lock       sync.RWMutex
-		stateCache map[string]any
+		c              chan WatcherEvent
+		checks         []WatcherCheck
+		followSymlinks bool
+		lock           sync.RWMutex
+		stateCache     map[string]any
 	}
 
 	// WatcherCheck is an interface to implement own checks
@@ -30,6 +32,14 @@ type (
 	// WatcherEvent is the detected change to be signeld through the
 	// channel within the Watcher
 	WatcherEvent uint
+
+	// WatcherOpts holds configuration for newly created watcher
+	WatcherOpts struct {
+		// FollowSymlinks switches watchers based on file metadata into
+		// a mode where they follow a symlink and check the real target
+		// file instead of the symlink
+		FollowSymlinks bool
+	}
 )
 
 const (
@@ -39,6 +49,12 @@ const (
 	WatcherEventFileModified
 	WatcherEventFileVanished
 )
+
+// DefaultWatcherOpts is used when creating the Watcher without
+// giving options
+var DefaultWatcherOpts = WatcherOpts{
+	FollowSymlinks: false,
+}
 
 // NewCryptographicWatcher is a wrapper around NewWatcher to configure
 // the Watcher with presence and sha256 hash checks.
@@ -53,15 +69,27 @@ func NewSimpleWatcher(filePath string, interval time.Duration) (*Watcher, error)
 }
 
 // NewWatcher creates a new Watcher configured with the given filePath,
-// interval and checks given. The checks are executed once during
-// initialization and will not cause an event to be sent. The created
-// Watcher will automatically start its periodic check and the C
-// channel should immediately be watched for changes. If the channel
-// is not listened on the check loop will be paused until events are
-// retrieved. If during the initial checks an error is detected the
-// loop is NOT started and the watcher needs to be initialized again.
+// default options, interval and checks given. The checks are executed
+// once during initialization and will not cause an event to be sent. The
+// created Watcher will automatically start its periodic check and the C
+// channel should immediately be watched for changes. If the channel is
+// not listened on the check loop will be paused until events are
+// retrieved. If during the initial checks an error is detected the loop
+// is NOT started and the watcher needs to be initialized again.
 func NewWatcher(filePath string, interval time.Duration, checks ...WatcherCheck) (*Watcher, error) {
-	w, err := newWatcher(filePath, interval, checks...)
+	return NewWatcherWithOpts(filePath, DefaultWatcherOpts, interval, checks...)
+}
+
+// NewWatcherWithOpts creates a new Watcher configured with the given
+// filePath, options, interval and checks given. The checks are executed
+// once during initialization and will not cause an event to be sent. The
+// created Watcher will automatically start its periodic check and the C
+// channel should immediately be watched for changes. If the channel is
+// not listened on the check loop will be paused until events are
+// retrieved. If during the initial checks an error is detected the loop
+// is NOT started and the watcher needs to be initialized again.
+func NewWatcherWithOpts(filePath string, opts WatcherOpts, interval time.Duration, checks ...WatcherCheck) (*Watcher, error) {
+	w, err := newWatcher(filePath, opts, interval, checks...)
 
 	if err == nil {
 		go w.loop()
@@ -70,7 +98,7 @@ func NewWatcher(filePath string, interval time.Duration, checks ...WatcherCheck)
 	return w, err
 }
 
-func newWatcher(filePath string, interval time.Duration, checks ...WatcherCheck) (*Watcher, error) {
+func newWatcher(filePath string, opts WatcherOpts, interval time.Duration, checks ...WatcherCheck) (*Watcher, error) {
 	notify := make(chan WatcherEvent, 1)
 
 	w := &Watcher{
@@ -78,9 +106,10 @@ func newWatcher(filePath string, interval time.Duration, checks ...WatcherCheck)
 		CheckInterval: interval,
 		FilePath:      filePath,
 
-		c:          notify,
-		checks:     checks,
-		stateCache: make(map[string]any),
+		c:              notify,
+		checks:         checks,
+		followSymlinks: opts.FollowSymlinks,
+		stateCache:     make(map[string]any),
 	}
 	// Initially run checks once
 	_, err := w.runStateChecks()
@@ -140,4 +169,12 @@ func (w *Watcher) runStateChecks() (WatcherEvent, error) {
 	}
 
 	return WatcherEventNoChange, nil
+}
+
+func (w *Watcher) stat(filePath string) (os.FileInfo, error) {
+	if w.followSymlinks {
+		return os.Stat(filePath)
+	}
+
+	return os.Lstat(filePath)
 }

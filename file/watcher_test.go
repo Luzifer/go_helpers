@@ -22,7 +22,7 @@ func TestWatcherCheckHash(t *testing.T) {
 
 	testFile := path.Join(testDir, "test.txt")
 
-	w, err := newWatcher(testFile, time.Second, WatcherCheckHash(sha256.New))
+	w, err := newWatcher(testFile, DefaultWatcherOpts, time.Second, WatcherCheckHash(sha256.New))
 	require.NoError(t, err, "initial check should not error on non existing file")
 
 	evt, err := w.runStateChecks()
@@ -73,7 +73,7 @@ func TestWatcherCheckMtime(t *testing.T) {
 
 	testFile := path.Join(testDir, "test.txt")
 
-	w, err := newWatcher(testFile, time.Second, WatcherCheckMtime)
+	w, err := newWatcher(testFile, DefaultWatcherOpts, time.Second, WatcherCheckMtime)
 	require.NoError(t, err, "initial check should not error on non existing file")
 
 	evt, err := w.runStateChecks()
@@ -128,7 +128,7 @@ func TestWatcherCheckPresence(t *testing.T) {
 
 	testFile := path.Join(testDir, "test.txt")
 
-	w, err := newWatcher(testFile, time.Second, WatcherCheckPresence)
+	w, err := newWatcher(testFile, DefaultWatcherOpts, time.Second, WatcherCheckPresence)
 	require.NoError(t, err, "initial check should not error on non existing file")
 
 	evt, err := w.runStateChecks()
@@ -165,7 +165,7 @@ func TestWatcherCheckSize(t *testing.T) {
 
 	testFile := path.Join(testDir, "test.txt")
 
-	w, err := newWatcher(testFile, time.Second, WatcherCheckSize)
+	w, err := newWatcher(testFile, DefaultWatcherOpts, time.Second, WatcherCheckSize)
 	require.NoError(t, err, "initial check should not error on non existing file")
 
 	evt, err := w.runStateChecks()
