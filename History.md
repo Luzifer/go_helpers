@@ -1,3 +1,7 @@
+# 2.17.1 / 2023-05-19
+
+  * Fix: Prevent panics when no arguments are given
+
 # 2.17.0 / 2023-05-19
 
   * Add simple CLI helper
