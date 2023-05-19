@@ -50,8 +50,13 @@ func (c *Registry) Call(args []string) error {
 	c.Lock()
 	defer c.Unlock()
 
-	cmdEntry := c.cmds[args[0]]
-	if cmdEntry.Name != args[0] {
+	cmd := "help"
+	if len(args) > 0 {
+		cmd = args[0]
+	}
+
+	cmdEntry := c.cmds[cmd]
+	if cmdEntry.Name != cmd {
 		c.help()
 		return ErrHelpCalled
 	}
