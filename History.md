@@ -1,3 +1,7 @@
+# 2.17.0 / 2023-05-19
+
+  * Add simple CLI helper
+
 # 2.16.0 / 2023-03-19
 
   * Allow to set watcher to follow symlinks
