@@ -1,3 +1,7 @@
+# 2.18.0 / 2023-06-10
+
+  * Add file.FSStack implementation
+
 # 2.17.1 / 2023-05-19
 
   * Fix: Prevent panics when no arguments are given
