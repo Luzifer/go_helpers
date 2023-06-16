@@ -1,3 +1,8 @@
+# 2.19.0 / 2023-06-16
+
+  * Add `http.NoListFS`
+  * Update dependencies, fix multiple CVEs
+
 # 2.18.0 / 2023-06-10
 
   * Add file.FSStack implementation
