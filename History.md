@@ -1,3 +1,7 @@
+# 2.20.0 / 2023-06-17
+
+  * Add CSP helper
+
 # 2.19.0 / 2023-06-16
 
   * Add `http.NoListFS`
