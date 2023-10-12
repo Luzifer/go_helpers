@@ -1,3 +1,7 @@
+# 2.20.1 / 2023-10-12
+
+  * Remove gomega from tests and update dependencies
+
 # 2.20.0 / 2023-06-17
 
   * Add CSP helper
