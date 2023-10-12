@@ -1,15 +1,14 @@
 package position_test
 
 import (
-	. "github.com/Luzifer/go_helpers/v2/position"
+	"testing"
 
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
+	. "github.com/Luzifer/go_helpers/v2/position"
+	"github.com/stretchr/testify/assert"
 )
 
-var _ = Describe("Haversine", func() {
-
-	var testCases = []struct {
+func TestHaversine(t *testing.T) {
+	testCases := []struct {
 		SourceLat float64
 		SourceLon float64
 		DestLat   float64
@@ -24,11 +23,8 @@ var _ = Describe("Haversine", func() {
 		{1, 0, -1, 0, 222.38985328911747},
 	}
 
-	It("should have the documented distance", func() {
-		for i := range testCases {
-			tc := testCases[i]
-			Expect(Haversine(tc.SourceLon, tc.SourceLat, tc.DestLon, tc.DestLat)).To(Equal(tc.Distance))
-		}
-	})
-
-})
+	for i := range testCases {
+		tc := testCases[i]
+		assert.Equal(t, tc.Distance, Haversine(tc.SourceLon, tc.SourceLat, tc.DestLon, tc.DestLat))
+	}
+}

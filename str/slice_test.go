@@ -1,52 +1,44 @@
 package str_test
 
 import (
-	. "github.com/Luzifer/go_helpers/v2/str"
+	"testing"
 
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
+	. "github.com/Luzifer/go_helpers/v2/str"
+	"github.com/stretchr/testify/assert"
 )
 
-var _ = Describe("Slice", func() {
+func TestAppendIfMissing(t *testing.T) {
+	sl := []string{
+		"test1",
+		"test2",
+		"test3",
+	}
 
-	Context("AppendIfMissing", func() {
-		var sl = []string{
-			"test1",
-			"test2",
-			"test3",
-		}
+	// should not append existing elements
+	assert.Len(t, AppendIfMissing(sl, "test1"), 3)
+	assert.Len(t, AppendIfMissing(sl, "test2"), 3)
+	assert.Len(t, AppendIfMissing(sl, "test3"), 3)
 
-		It("should not append existing elements", func() {
-			Expect(len(AppendIfMissing(sl, "test1"))).To(Equal(3))
-			Expect(len(AppendIfMissing(sl, "test2"))).To(Equal(3))
-			Expect(len(AppendIfMissing(sl, "test3"))).To(Equal(3))
-		})
+	// should append not existing elements
+	assert.Len(t, AppendIfMissing(sl, "test4"), 4)
+	assert.Len(t, AppendIfMissing(sl, "test5"), 4)
+	assert.Len(t, AppendIfMissing(sl, "test6"), 4)
+}
 
-		It("should append not existing elements", func() {
-			Expect(len(AppendIfMissing(sl, "test4"))).To(Equal(4))
-			Expect(len(AppendIfMissing(sl, "test5"))).To(Equal(4))
-			Expect(len(AppendIfMissing(sl, "test6"))).To(Equal(4))
-		})
-	})
+func TestStringInSlice(t *testing.T) {
+	sl := []string{
+		"test1",
+		"test2",
+		"test3",
+	}
 
-	Context("StringInSlice", func() {
-		var sl = []string{
-			"test1",
-			"test2",
-			"test3",
-		}
+	// should find elements of slice
+	assert.True(t, StringInSlice("test1", sl))
+	assert.True(t, StringInSlice("test2", sl))
+	assert.True(t, StringInSlice("test3", sl))
 
-		It("should find elements of slice", func() {
-			Expect(StringInSlice("test1", sl)).To(Equal(true))
-			Expect(StringInSlice("test2", sl)).To(Equal(true))
-			Expect(StringInSlice("test3", sl)).To(Equal(true))
-		})
-
-		It("should not find elements not in slice", func() {
-			Expect(StringInSlice("test4", sl)).To(Equal(false))
-			Expect(StringInSlice("test5", sl)).To(Equal(false))
-			Expect(StringInSlice("test6", sl)).To(Equal(false))
-		})
-	})
-
-})
+	// should not find elements not in slice
+	assert.False(t, StringInSlice("test4", sl))
+	assert.False(t, StringInSlice("test5", sl))
+	assert.False(t, StringInSlice("test6", sl))
+}

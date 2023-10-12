@@ -2,34 +2,31 @@ package float_test
 
 import (
 	"math"
+	"testing"
 
 	. "github.com/Luzifer/go_helpers/v2/float"
-
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
+	"github.com/stretchr/testify/assert"
 )
 
-var _ = Describe("Round", func() {
-
-	It("should match the example table of IEEE 754 rules", func() {
-		Expect(Round(11.5)).To(Equal(12.0))
-		Expect(Round(12.5)).To(Equal(13.0))
-		Expect(Round(-11.5)).To(Equal(-12.0))
-		Expect(Round(-12.5)).To(Equal(-13.0))
+func TestRound(t *testing.T) {
+	t.Run("should match the example table of IEEE 754 rules", func(t *testing.T) {
+		assert.Equal(t, 12.0, Round(11.5))
+		assert.Equal(t, 13.0, Round(12.5))
+		assert.Equal(t, -12.0, Round(-11.5))
+		assert.Equal(t, -13.0, Round(-12.5))
 	})
 
-	It("should have correct rounding for numbers near 0.5", func() {
-		Expect(Round(0.499999999997)).To(Equal(0.0))
-		Expect(Round(-0.499999999997)).To(Equal(0.0))
+	t.Run("should have correct rounding for numbers near 0.5", func(t *testing.T) {
+		assert.Equal(t, 0.0, Round(0.499999999997))
+		assert.Equal(t, 0.0, Round(-0.499999999997))
 	})
 
-	It("should be able to handle +/-Inf", func() {
-		Expect(Round(math.Inf(1))).To(Equal(math.Inf(1)))
-		Expect(Round(math.Inf(-1))).To(Equal(math.Inf(-1)))
+	t.Run("should be able to handle +/-Inf", func(t *testing.T) {
+		assert.Equal(t, math.Inf(1), math.Inf(1))
+		assert.Equal(t, math.Inf(-1), math.Inf(-1))
 	})
 
-	It("should be able to handle NaN", func() {
-		Expect(math.IsNaN(Round(math.NaN()))).To(Equal(true))
+	t.Run("should be able to handle NaN", func(t *testing.T) {
+		assert.True(t, math.IsNaN(Round(math.NaN())))
 	})
-
-})
+}

@@ -1,63 +1,30 @@
 package which_test
 
 import (
-	. "github.com/Luzifer/go_helpers/v2/which"
+	"testing"
 
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
+	. "github.com/Luzifer/go_helpers/v2/which"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-var _ = Describe("Which", func() {
-	var (
-		result string
-		err    error
-		found  bool
-	)
+func TestFindInDirectory(t *testing.T) {
+	found, err := FindInDirectory("bash", "/bin")
+	require.NoError(t, err)
+	assert.True(t, found)
+}
 
-	Context("With a file available on linux systems", func() {
-		BeforeEach(func() {
-			found, err = FindInDirectory("bash", "/bin")
-		})
+func TestFindInPath(t *testing.T) {
+	// Searching bash on the system
+	result, err := FindInPath("bash")
+	assert.NoError(t, err)
+	assert.Greater(t, len(result), 0)
 
-		It("should not have errored", func() {
-			Expect(err).NotTo(HaveOccurred())
-		})
-		It("should have found the binary at /bin/bash", func() {
-			Expect(found).To(BeTrue())
-		})
-	})
+	// Searching a non existent file
+	_, err = FindInPath("dfqoiwurgtqi3uegrds")
+	assert.ErrorIs(t, err, ErrBinaryNotFound)
 
-	Context("Searching bash on the system", func() {
-		BeforeEach(func() {
-			result, err = FindInPath("bash")
-		})
-
-		It("should not have errored", func() {
-			Expect(err).NotTo(HaveOccurred())
-		})
-		It("should have a result", func() {
-			Expect(len(result)).NotTo(Equal(0))
-		})
-	})
-
-	Context("Searching a non existent file", func() {
-		BeforeEach(func() {
-			result, err = FindInPath("dfqoiwurgtqi3uegrds")
-		})
-
-		It("should have errored", func() {
-			Expect(err).To(Equal(ErrBinaryNotFound))
-		})
-	})
-
-	Context("Searching an empty file", func() {
-		BeforeEach(func() {
-			result, err = FindInPath("")
-		})
-
-		It("should have errored", func() {
-			Expect(err).To(Equal(ErrNoSearchSpecified))
-		})
-	})
-
-})
+	// Searching an empty file
+	_, err = FindInPath("")
+	assert.ErrorIs(t, err, ErrNoSearchSpecified)
+}

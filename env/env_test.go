@@ -2,54 +2,47 @@ package env_test
 
 import (
 	"sort"
+	"testing"
 
 	. "github.com/Luzifer/go_helpers/v2/env"
-
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
+	"github.com/stretchr/testify/assert"
 )
 
-var _ = Describe("Env", func() {
-	Context("ListToMap", func() {
-		var (
-			list = []string{
-				"FIRST_KEY=firstvalue",
-				"SECOND_KEY=secondvalue",
-				"WEIRD=",
-				"NOVALUE",
-				"",
-			}
-			emap = map[string]string{
-				"FIRST_KEY":  "firstvalue",
-				"SECOND_KEY": "secondvalue",
-				"WEIRD":      "",
-				"NOVALUE":    "",
-			}
-		)
+func TestListToMap(t *testing.T) {
+	var (
+		list = []string{
+			"FIRST_KEY=firstvalue",
+			"SECOND_KEY=secondvalue",
+			"WEIRD=",
+			"NOVALUE",
+			"",
+		}
+		emap = map[string]string{
+			"FIRST_KEY":  "firstvalue",
+			"SECOND_KEY": "secondvalue",
+			"WEIRD":      "",
+			"NOVALUE":    "",
+		}
+	)
 
-		It("should convert the list in the expected way", func() {
-			Expect(ListToMap(list)).To(Equal(emap))
-		})
-	})
+	assert.Equal(t, emap, ListToMap(list))
+}
 
-	Context("MapToList", func() {
-		var (
-			list = []string{
-				"FIRST_KEY=firstvalue",
-				"SECOND_KEY=secondvalue",
-				"WEIRD=",
-			}
-			emap = map[string]string{
-				"FIRST_KEY":  "firstvalue",
-				"SECOND_KEY": "secondvalue",
-				"WEIRD":      "",
-			}
-		)
+func TestMapToList(t *testing.T) {
+	var (
+		list = []string{
+			"FIRST_KEY=firstvalue",
+			"SECOND_KEY=secondvalue",
+			"WEIRD=",
+		}
+		emap = map[string]string{
+			"FIRST_KEY":  "firstvalue",
+			"SECOND_KEY": "secondvalue",
+			"WEIRD":      "",
+		}
+	)
 
-		It("should convert the map in the expected way", func() {
-			l := MapToList(emap)
-			sort.Strings(l) // Workaround: The test needs the elements to be in same order
-			Expect(l).To(Equal(list))
-		})
-	})
-})
+	l := MapToList(emap)
+	sort.Strings(l) // Workaround: The test needs the elements to be in same order
+	assert.Equal(t, list, l)
+}
