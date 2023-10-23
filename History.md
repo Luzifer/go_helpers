@@ -1,3 +1,7 @@
+# 2.21.0 / 2023-10-23
+
+  * Replace and deprecate `float.Round` method
+
 # 2.20.1 / 2023-10-12
 
   * Remove gomega from tests and update dependencies
