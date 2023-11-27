@@ -1,3 +1,7 @@
+# 2.22.0 / 2023-11-27
+
+  * Add special error to terminate retries immediately
+
 # 2.21.0 / 2023-10-23
 
   * Replace and deprecate `float.Round` method
