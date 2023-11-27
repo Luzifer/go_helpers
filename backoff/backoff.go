@@ -1,20 +1,23 @@
+// Package backoff contains a configurable retry-functionality using
+// either exponential or constant backoff
 package backoff
 
 import (
+	"errors"
 	"fmt"
 	"time"
 )
 
 const (
-	// Default value to use for number of iterations: infinite
+	// DefaultMaxIterations contains the default value to use for number of iterations: infinite
 	DefaultMaxIterations uint64 = 0
-	// Default value to use for maximum iteration time
+	// DefaultMaxIterationTime contains the default value to use for maximum iteration time
 	DefaultMaxIterationTime = 60 * time.Second
-	// Default value to use for maximum execution time: infinite
+	// DefaultMaxTotalTime contains the default value to use for maximum execution time: infinite
 	DefaultMaxTotalTime time.Duration = 0
-	// Default value to use for initial iteration time
+	// DefaultMinIterationTime contains the default value to use for initial iteration time
 	DefaultMinIterationTime = 100 * time.Millisecond
-	// Default multiplier to apply to iteration time after each iteration
+	// DefaultMultipler contains the default multiplier to apply to iteration time after each iteration
 	DefaultMultipler float64 = 1.5
 )
 
@@ -41,6 +44,12 @@ func NewBackoff() *Backoff {
 // Retry executes the function and waits for it to end successul or for the
 // given limites to be reached. The returned error uses Go1.13 wrapping of
 // errors and can be unwrapped into the error of the function itself.
+//
+// To break free from the Retry function ignoring the remaining retries
+// return an ErrCannotRetry containing the original error. At this
+// point the ErrCannotRetry will NOT be returned but unwrapped. So
+// returning NewErrCannotRetry(errors.New("foo")) will give you the
+// errors.New("foo") as a return value from Retry.
 func (b Backoff) Retry(f Retryable) error {
 	var (
 		iterations uint64
@@ -55,13 +64,18 @@ func (b Backoff) Retry(f Retryable) error {
 			return nil
 		}
 
+		var ecr ErrCannotRetry
+		if errors.As(err, &ecr) {
+			return ecr.Unwrap()
+		}
+
 		iterations++
 		if b.MaxIterations > 0 && iterations == b.MaxIterations {
-			return fmt.Errorf("Maximum iterations reached: %w", err)
+			return fmt.Errorf("maximum iterations reached: %w", err)
 		}
 
 		if b.MaxTotalTime > 0 && time.Since(start) >= b.MaxTotalTime {
-			return fmt.Errorf("Maximum execution time reached: %w", err)
+			return fmt.Errorf("maximum execution time reached: %w", err)
 		}
 
 		time.Sleep(sleepTime)
