@@ -1,3 +1,8 @@
+# 2.23.0 / 2024-03-06
+
+  * Add `ThrottledReader` as io-helper
+  * Update dependencies
+
 # 2.22.0 / 2023-11-27
 
   * Add special error to terminate retries immediately
