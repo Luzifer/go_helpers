@@ -1,3 +1,4 @@
+// Package yaml contains a method to convert a YAML into a JSON object
 package yaml
 
 import (
@@ -6,7 +7,7 @@ import (
 	"fmt"
 	"io"
 
-	yaml "gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v3"
 )
 
 // ToJSON takes an io.Reader containing YAML source and converts it into
@@ -15,14 +16,14 @@ func ToJSON(in io.Reader) (io.Reader, error) {
 	var body interface{}
 
 	if err := yaml.NewDecoder(in).Decode(&body); err != nil {
-		return nil, fmt.Errorf("Unable to unmarshal YAML: %s", err)
+		return nil, fmt.Errorf("unmarshaling YAML: %s", err)
 	}
 
 	body = convert(body)
 
-	var buf = new(bytes.Buffer)
+	buf := new(bytes.Buffer)
 	if err := json.NewEncoder(buf).Encode(body); err != nil {
-		return nil, fmt.Errorf("Unable to marshal JSON: %s", err)
+		return nil, fmt.Errorf("marshaling JSON: %s", err)
 	}
 
 	return buf, nil

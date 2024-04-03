@@ -1,60 +1,42 @@
+// Package fieldcollection contains a map[string]any with accessor
+// methods to derive them into different formats
 package fieldcollection
 
 import (
-	"encoding/json"
-	"fmt"
-	"strconv"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/pkg/errors"
 )
 
 var (
-	ErrValueNotSet   = errors.New("specified value not found")
+	// ErrValueNotSet signalizes the value does not exist in the map
+	ErrValueNotSet = errors.New("specified value not found")
+	// ErrValueMismatch signalizes the value has a different data type
 	ErrValueMismatch = errors.New("specified value has different format")
 )
 
-type FieldCollection struct {
-	data map[string]interface{}
-	lock sync.RWMutex
-}
+type (
+	// FieldCollection holds a map with integrated locking and can
+	// therefore used in multiple Go-routines concurrently
+	FieldCollection struct {
+		data map[string]any
+		lock sync.RWMutex
+	}
+)
 
 // NewFieldCollection creates a new FieldCollection with empty data store
 func NewFieldCollection() *FieldCollection {
-	return &FieldCollection{data: make(map[string]interface{})}
+	return &FieldCollection{data: make(map[string]any)}
 }
 
 // FieldCollectionFromData is a wrapper around NewFieldCollection and SetFromData
-func FieldCollectionFromData(data map[string]interface{}) *FieldCollection {
+//
+//revive:disable-next-line:exported
+func FieldCollectionFromData(data map[string]any) *FieldCollection {
 	o := NewFieldCollection()
 	o.SetFromData(data)
 	return o
-}
-
-// CanBool tries to read key name as bool and checks whether error is nil
-func (f *FieldCollection) CanBool(name string) bool {
-	_, err := f.Bool(name)
-	return err == nil
-}
-
-// CanDuration tries to read key name as time.Duration and checks whether error is nil
-func (f *FieldCollection) CanDuration(name string) bool {
-	_, err := f.Duration(name)
-	return err == nil
-}
-
-// CanInt64 tries to read key name as int64 and checks whether error is nil
-func (f *FieldCollection) CanInt64(name string) bool {
-	_, err := f.Int64(name)
-	return err == nil
-}
-
-// CanString tries to read key name as string and checks whether error is nil
-func (f *FieldCollection) CanString(name string) bool {
-	_, err := f.String(name)
-	return err == nil
 }
 
 // Clone is a wrapper around n.SetFromData(o.Data())
@@ -65,7 +47,7 @@ func (f *FieldCollection) Clone() *FieldCollection {
 }
 
 // Data creates a map-copy of the data stored inside the FieldCollection
-func (f *FieldCollection) Data() map[string]interface{} {
+func (f *FieldCollection) Data() map[string]any {
 	if f == nil {
 		return nil
 	}
@@ -73,7 +55,7 @@ func (f *FieldCollection) Data() map[string]interface{} {
 	f.lock.RLock()
 	defer f.lock.RUnlock()
 
-	out := make(map[string]interface{})
+	out := make(map[string]any)
 	for k := range f.data {
 		out[k] = f.data[k]
 	}
@@ -114,186 +96,9 @@ func (f *FieldCollection) HasAll(keys ...string) bool {
 	return f.Expect(keys...) == nil
 }
 
-// MustBool is a wrapper around Bool and panics if an error was returned
-func (f *FieldCollection) MustBool(name string, defVal *bool) bool {
-	v, err := f.Bool(name)
-	if err != nil {
-		if defVal != nil {
-			return *defVal
-		}
-		panic(err)
-	}
-	return v
-}
-
-// MustDuration is a wrapper around Duration and panics if an error was returned
-func (f *FieldCollection) MustDuration(name string, defVal *time.Duration) time.Duration {
-	v, err := f.Duration(name)
-	if err != nil {
-		if defVal != nil {
-			return *defVal
-		}
-		panic(err)
-	}
-	return v
-}
-
-// MustInt64 is a wrapper around Int64 and panics if an error was returned
-func (f *FieldCollection) MustInt64(name string, defVal *int64) int64 {
-	v, err := f.Int64(name)
-	if err != nil {
-		if defVal != nil {
-			return *defVal
-		}
-		panic(err)
-	}
-	return v
-}
-
-// MustString is a wrapper around String and panics if an error was returned
-func (f *FieldCollection) MustString(name string, defVal *string) string {
-	v, err := f.String(name)
-	if err != nil {
-		if defVal != nil {
-			return *defVal
-		}
-		panic(err)
-	}
-	return v
-}
-
-// Bool tries to read key name as bool
-func (f *FieldCollection) Bool(name string) (bool, error) {
-	if f == nil || f.data == nil {
-		return false, errors.New("uninitialized field collection")
-	}
-
-	f.lock.RLock()
-	defer f.lock.RUnlock()
-
-	v, ok := f.data[name]
-	if !ok {
-		return false, ErrValueNotSet
-	}
-
-	switch v := v.(type) {
-	case bool:
-		return v, nil
-	case string:
-		bv, err := strconv.ParseBool(v)
-		return bv, errors.Wrap(err, "parsing string to bool")
-	}
-
-	return false, ErrValueMismatch
-}
-
-// Duration tries to read key name as time.Duration
-func (f *FieldCollection) Duration(name string) (time.Duration, error) {
-	if f == nil || f.data == nil {
-		return 0, errors.New("uninitialized field collection")
-	}
-
-	f.lock.RLock()
-	defer f.lock.RUnlock()
-
-	v, err := f.String(name)
-	if err != nil {
-		return 0, errors.Wrap(err, "getting string value")
-	}
-
-	d, err := time.ParseDuration(v)
-	return d, errors.Wrap(err, "parsing value")
-}
-
-// Int64 tries to read key name as int64
-func (f *FieldCollection) Int64(name string) (int64, error) {
-	if f == nil || f.data == nil {
-		return 0, errors.New("uninitialized field collection")
-	}
-
-	f.lock.RLock()
-	defer f.lock.RUnlock()
-
-	v, ok := f.data[name]
-	if !ok {
-		return 0, ErrValueNotSet
-	}
-
-	switch v := v.(type) {
-	case int:
-		return int64(v), nil
-	case int16:
-		return int64(v), nil
-	case int32:
-		return int64(v), nil
-	case int64:
-		return v, nil
-	}
-
-	return 0, ErrValueMismatch
-}
-
-// Set sets a single key to specified value
-func (f *FieldCollection) Set(key string, value interface{}) {
-	if f == nil {
-		f = NewFieldCollection()
-	}
-
-	f.lock.Lock()
-	defer f.lock.Unlock()
-
-	if f.data == nil {
-		f.data = make(map[string]interface{})
-	}
-
-	f.data[key] = value
-}
-
-// SetFromData takes a map of data and copies all data into the FieldCollection
-func (f *FieldCollection) SetFromData(data map[string]interface{}) {
-	if f == nil {
-		f = NewFieldCollection()
-	}
-
-	f.lock.Lock()
-	defer f.lock.Unlock()
-
-	if f.data == nil {
-		f.data = make(map[string]interface{})
-	}
-
-	for key, value := range data {
-		f.data[key] = value
-	}
-}
-
-// String tries to read key name as string
-func (f *FieldCollection) String(name string) (string, error) {
-	if f == nil || f.data == nil {
-		return "", errors.New("uninitialized field collection")
-	}
-
-	f.lock.RLock()
-	defer f.lock.RUnlock()
-
-	v, ok := f.data[name]
-	if !ok {
-		return "", ErrValueNotSet
-	}
-
-	if sv, ok := v.(string); ok {
-		return sv, nil
-	}
-
-	if iv, ok := v.(fmt.Stringer); ok {
-		return iv.String(), nil
-	}
-
-	return "", ErrValueMismatch
-}
-
-// StringSlice tries to read key name as []string
-func (f *FieldCollection) StringSlice(name string) ([]string, error) {
+// Get retrieves the value of a key as "any" type or returns an error
+// in case the field is not set
+func (f *FieldCollection) Get(name string) (any, error) {
 	if f == nil || f.data == nil {
 		return nil, errors.New("uninitialized field collection")
 	}
@@ -306,62 +111,43 @@ func (f *FieldCollection) StringSlice(name string) ([]string, error) {
 		return nil, ErrValueNotSet
 	}
 
-	switch v := v.(type) {
-	case []string:
-		return v, nil
-
-	case []interface{}:
-		var out []string
-
-		for _, iv := range v {
-			sv, ok := iv.(string)
-			if !ok {
-				return nil, errors.New("value in slice was not string")
-			}
-			out = append(out, sv)
-		}
-
-		return out, nil
-	}
-
-	return nil, ErrValueMismatch
+	return v, nil
 }
 
-// Implement JSON marshalling to plain underlying map[string]interface{}
-
-func (f *FieldCollection) MarshalJSON() ([]byte, error) {
-	if f == nil || f.data == nil {
-		return []byte("{}"), nil
-	}
-
+// Keys returns a list of all known keys
+func (f *FieldCollection) Keys() (keys []string) {
 	f.lock.RLock()
 	defer f.lock.RUnlock()
 
-	return json.Marshal(f.data)
-}
-
-func (f *FieldCollection) UnmarshalJSON(raw []byte) error {
-	data := make(map[string]interface{})
-	if err := json.Unmarshal(raw, &data); err != nil {
-		return errors.Wrap(err, "unmarshalling from JSON")
+	for k := range f.data {
+		keys = append(keys, k)
 	}
 
-	f.SetFromData(data)
-	return nil
+	return keys
 }
 
-// Implement YAML marshalling to plain underlying map[string]interface{}
+// Set sets a single key to specified value
+func (f *FieldCollection) Set(key string, value any) {
+	f.lock.Lock()
+	defer f.lock.Unlock()
 
-func (f *FieldCollection) MarshalYAML() (interface{}, error) {
-	return f.Data(), nil
-}
-
-func (f *FieldCollection) UnmarshalYAML(unmarshal func(interface{}) error) error {
-	data := make(map[string]interface{})
-	if err := unmarshal(&data); err != nil {
-		return errors.Wrap(err, "unmarshalling from YAML")
+	if f.data == nil {
+		f.data = make(map[string]any)
 	}
 
-	f.SetFromData(data)
-	return nil
+	f.data[key] = value
+}
+
+// SetFromData takes a map of data and copies all data into the FieldCollection
+func (f *FieldCollection) SetFromData(data map[string]any) {
+	f.lock.Lock()
+	defer f.lock.Unlock()
+
+	if f.data == nil {
+		f.data = make(map[string]any)
+	}
+
+	for key, value := range data {
+		f.data[key] = value
+	}
 }
