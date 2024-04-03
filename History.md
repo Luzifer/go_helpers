@@ -1,3 +1,7 @@
+# 2.24.0 / 2024-04-03
+
+  * Add validation to fieldcollection
+
 # 2.23.0 / 2024-03-06
 
   * Add `ThrottledReader` as io-helper
