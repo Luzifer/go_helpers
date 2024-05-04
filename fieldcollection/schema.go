@@ -37,6 +37,7 @@ const (
 	SchemaFieldTypeAny SchemaFieldType = iota
 	SchemaFieldTypeBool
 	SchemaFieldTypeDuration
+	SchemaFieldTypeFloat64
 	SchemaFieldTypeInt64
 	SchemaFieldTypeString
 	SchemaFieldTypeStringSlice
@@ -110,7 +111,7 @@ func (f *FieldCollection) ValidateSchema(opts ...ValidateOpt) error {
 	return nil
 }
 
-//nolint:gocyclo // These are quite simple checks
+//nolint:gocognit,gocyclo // These are quite simple checks
 func validateFieldType(f *FieldCollection, field SchemaField) (err error) {
 	switch field.Type {
 	case SchemaFieldTypeAny:
@@ -132,6 +133,16 @@ func validateFieldType(f *FieldCollection, field SchemaField) (err error) {
 		v, err := f.Duration(field.Name)
 		if err != nil {
 			return fmt.Errorf("field %s is not of type time.Duration: %w", field.Name, err)
+		}
+
+		if field.NonEmpty && v == 0 {
+			return fmt.Errorf("field %s is empty", field.Name)
+		}
+
+	case SchemaFieldTypeFloat64:
+		v, err := f.Float64(field.Name)
+		if err != nil {
+			return fmt.Errorf("field %s is not of type float64: %w", field.Name, err)
 		}
 
 		if field.NonEmpty && v == 0 {
