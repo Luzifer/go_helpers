@@ -1,3 +1,7 @@
+# 2.25.0 / 2024-05-04
+
+  * Add float64 field type support
+
 # 2.24.0 / 2024-04-03
 
   * Add validation to fieldcollection
