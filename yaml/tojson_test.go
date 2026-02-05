@@ -1,7 +1,7 @@
 package yaml
 
 import (
-	"io/ioutil"
+	"io"
 	"strings"
 	"testing"
 )
@@ -23,8 +23,8 @@ func TestToJSON(t *testing.T) {
 		t.Fatalf("ToJSON failed: %s", err)
 	}
 
-	real, _ := ioutil.ReadAll(j)
-	realString := string(real)
+	realValue, _ := io.ReadAll(j)
+	realString := string(realValue)
 
 	if expected != realString {
 		t.Errorf("Expected JSON was not created:\nEXPE: %q\nREAL: %q", expected, realString)
