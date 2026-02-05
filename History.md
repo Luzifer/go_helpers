@@ -1,3 +1,9 @@
+# 2.25.1 / 2026-02-05
+
+  * chore: drop support for Go 1.23
+  * fix(deps): update module github.com/sirupsen/logrus to v1.9.4
+  * fix(deps): update module github.com/stretchr/testify to v1.11.1
+
 # 2.25.0 / 2024-05-04
 
   * Add float64 field type support
