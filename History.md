@@ -1,3 +1,8 @@
+# 2.25.2 / 2026-02-05
+
+  * chore: replace deprecated YAML library
+  * chore: replace deprecated function
+
 # 2.25.1 / 2026-02-05
 
   * chore: drop support for Go 1.23
