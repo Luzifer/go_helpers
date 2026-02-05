@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"io"
 
-	yaml "gopkg.in/yaml.v3"
+	"go.yaml.in/yaml/v3"
 )
 
 // ToJSON takes an io.Reader containing YAML source and converts it into
