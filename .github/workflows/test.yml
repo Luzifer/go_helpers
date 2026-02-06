@@ -1,4 +1,5 @@
 name: test-and-build
+
 on: [push]
 
 jobs:
@@ -7,8 +8,8 @@ jobs:
       fail-fast: false
       matrix:
         go_version:
-          - '1.23'
           - '1.24'
+          - '1.25'
           - 'latest'
 
     defaults:
