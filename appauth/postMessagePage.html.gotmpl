@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Auth</title>
+</head>
+
+<body>Completing login…</body>
+<script>
+  (function () {
+    const msg = {
+      type: "OIDC_TOKEN",
+      data: {{ .data | toJSON }},
+    };
+    const target = {{ .origin | toJSON }}
+    try {
+      if (window.opener && typeof window.opener.postMessage === "function") {
+        window.opener.postMessage(msg, target)
+      }
+    } finally {
+      try {
+        window.close()
+      } catch (e) { }
+    }
+  })()
+</script>
+
+</html>
