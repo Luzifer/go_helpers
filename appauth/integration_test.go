@@ -9,7 +9,6 @@ import (
 	"net/http/cookiejar"
 	"net/http/httptest"
 	"regexp"
-	"strings"
 	"testing"
 	"time"
 
@@ -45,7 +44,6 @@ func TestIntegration(t *testing.T) {
 		PopupRedirectURL:          httpSrv.URL,
 		Scopes:                    []string{oidc.ScopeOpenID, "profile", "email", "groups"}, // roles is not supported
 		AllowedPostMessageOrigins: []string{"http://localhost"},
-		RequiredAudience:          oidcSrv.ClientID,
 		Logger:                    testLogger{t},
 	})
 	require.NoError(t, err, "creating Auth")
@@ -94,19 +92,16 @@ func TestIntegration(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, status)
 
-	assert.Contains(t, body, `"access_token":"eyJ`, "there should be an access token")
-	assert.Contains(t, body, `"id_token":"eyJ`, "there should be an id token")
-	assert.Contains(t, body, `"token_type":"bearer"`, "there should be a token type")
+	assert.Contains(t, body, `"access_token":"`, "there should be an access token")
 
 	// Get the access token from the body
-	match := regexp.MustCompile(`"id_token":"([^"]+)"`).FindStringSubmatch(body)
+	match := regexp.MustCompile(`"access_token":"([^"]+)"`).FindStringSubmatch(body)
 	require.Len(t, match, 2)
 	token := match[1]
-	require.True(t, strings.HasPrefix(token, "eyJ"))
 
 	// Require auth with the token we got
 	body, _, status, err = testReq(client, http.MethodGet, httpSrv.URL+"/testAuth", http.Header{
-		"authorization": []string{"Bearer " + token},
+		"authorization": []string{"Session " + token},
 	})
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, status, body)

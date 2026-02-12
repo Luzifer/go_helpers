@@ -2,37 +2,7 @@ package appauth
 
 import (
 	"slices"
-	"strings"
 )
-
-func audContains(aud any, required string) bool {
-	switch v := aud.(type) {
-	case string:
-		return v == required
-
-	case []any:
-		for _, it := range v {
-			if s, ok := it.(string); ok && s == required {
-				return true
-			}
-		}
-	}
-
-	return false
-}
-
-func bearerToken(hdr string) string {
-	if hdr == "" {
-		return ""
-	}
-
-	const p = "Bearer "
-	if !strings.HasPrefix(hdr, p) {
-		return ""
-	}
-
-	return strings.TrimSpace(strings.TrimPrefix(hdr, p))
-}
 
 func extractRoles(claims map[string]any, clientID string) []string {
 	var out []string

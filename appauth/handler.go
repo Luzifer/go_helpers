@@ -4,8 +4,10 @@ import (
 	"context"
 	"net/http"
 	"slices"
+	"strings"
 	"time"
 
+	"github.com/Luzifer/go_helpers/v2/appauth/pkg/cache"
 	"golang.org/x/oauth2"
 )
 
@@ -13,6 +15,7 @@ const (
 	flowCookieTimeout = 5 * time.Minute
 	stateLength       = 32
 	verifierLength    = 64
+	sessionIDLength   = 64
 )
 
 // RequireAuth shields the given next Handler with the given auth
@@ -25,9 +28,32 @@ func (a *Auth) RequireAuth(next http.Handler, opts Opts) http.Handler {
 			return
 		}
 
-		token := bearerToken(r.Header.Get("Authorization"))
-		if token == "" {
-			a.logf("auth: missing bearer token path=%s", r.URL.Path)
+		tokenType, token, ok := strings.Cut(r.Header.Get("Authorization"), " ")
+		if !ok {
+			a.logf("auth: missing authorization path=%s", r.URL.Path)
+			http.NotFound(w, r)
+			return
+		}
+
+		switch tokenType {
+		case "Bearer":
+			// That's expected from API-clients with direct OIDC-Provider
+			// access such as server-to-server or desktop applications, we
+			// use the token directly in this case.
+
+		case "Session":
+			// We got a session identifier and need to fetch a token from
+			// the cache and possibly renew it
+
+			var err error
+			if token, err = a.exchangeTokenThroughCache(r.Context(), token); err != nil {
+				a.logf("auth: exchanging session for token path=%s type=%s", r.URL.Path, tokenType)
+				http.NotFound(w, r)
+				return
+			}
+
+		default:
+			a.logf("auth: invalid token type path=%s type=%s", r.URL.Path, tokenType)
 			http.NotFound(w, r)
 			return
 		}
@@ -152,6 +178,7 @@ func (a *Auth) popupCallback(w http.ResponseWriter, r *http.Request) {
 
 	access, _ := tok.Extra("access_token").(string)
 	idt, _ := tok.Extra("id_token").(string)
+	refresh, _ := tok.Extra("refresh_token").(string)
 
 	origin, _ := readCookie(r, "oidc_origin")
 	targetOrigin, ok := a.allowedOrigin(origin)
@@ -162,11 +189,26 @@ func (a *Auth) popupCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	sessID, err := randB64(sessionIDLength)
+	if err != nil {
+		a.logf("popup: creating session err=%v", err)
+		writeClosePage(w, "Creating session failed.")
+		return
+	}
+
+	if err = a.sessionCache.SetSession(sessID, cache.Session{
+		AccessToken:  access,
+		IDToken:      idt,
+		RefreshToken: refresh,
+		Expires:      tok.Expiry,
+	}); err != nil {
+		a.logf("popup: writing session err=%v", err)
+		writeClosePage(w, "Writing session failed.")
+		return
+	}
+
 	payload := map[string]any{
-		"access_token": access,
-		"id_token":     idt,
-		"token_type":   tok.TokenType,
-		"expiry":       tok.Expiry.Unix(),
+		"access_token": sessID,
 	}
 
 	writePostMessageAndClose(w, targetOrigin, payload)

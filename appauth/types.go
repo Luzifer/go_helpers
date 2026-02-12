@@ -1,6 +1,7 @@
 package appauth
 
 import (
+	"github.com/Luzifer/go_helpers/v2/appauth/pkg/cache"
 	"github.com/coreos/go-oidc/v3/oidc"
 	"golang.org/x/oauth2"
 )
@@ -15,6 +16,8 @@ type (
 		verifier *oidc.IDTokenVerifier // We will verify JWTs; access tokens are JWTs in KC by default.
 
 		oauth2 oauth2.Config
+
+		sessionCache cache.Cache
 	}
 
 	// Config holds the configuration for the Auth adapter
@@ -31,10 +34,8 @@ type (
 		// Who may receive tokens via postMessage (strict allowlist)
 		AllowedPostMessageOrigins []string
 
-		// Enforce aud contains this (recommended)
-		RequiredAudience string
-
-		Logger Logger // optional
+		Logger Logger      // optional
+		Cache  cache.Cache // optional
 	}
 
 	// Logger defines what a log-provider must implement in order to be
