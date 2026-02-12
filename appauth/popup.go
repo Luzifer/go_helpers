@@ -47,13 +47,13 @@ func writeClosePage(w http.ResponseWriter, msg string) {
 	_ = renderTemplate(w, closePage, map[string]string{"message": msg})
 }
 
-func writePostMessageAndClose(w http.ResponseWriter, targetOrigin string, payload map[string]any) {
+func writePostMessageAndClose(w http.ResponseWriter, targetOrigin string, token string) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.Header().Set("Cache-Control", "no-store")
 	w.Header().Set("Pragma", "no-cache")
 
 	_ = renderTemplate(w, postMessagePage, map[string]any{
-		"data":   payload,
+		"token":  token,
 		"origin": targetOrigin,
 	})
 }

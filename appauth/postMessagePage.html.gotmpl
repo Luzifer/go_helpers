@@ -10,8 +10,8 @@
 <script>
   (function () {
     const msg = {
-      type: "OIDC_TOKEN",
-      data: {{ .data | toJSON }},
+      type: "SESSION_TOKEN",
+      token: {{ .token | toJSON }},
     };
     const target = {{ .origin | toJSON }}
     try {

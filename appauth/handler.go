@@ -207,9 +207,5 @@ func (a *Auth) popupCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	payload := map[string]any{
-		"access_token": sessID,
-	}
-
-	writePostMessageAndClose(w, targetOrigin, payload)
+	writePostMessageAndClose(w, targetOrigin, sessID)
 }
