@@ -31,7 +31,12 @@ func New(cfg Config) (*Auth, error) {
 	a := &Auth{
 		cfg:      cfg,
 		provider: provider,
-		verifier: provider.Verifier(&oidc.Config{ClientID: cfg.ClientID}),
+		verifier: provider.Verifier(&oidc.Config{
+			// We're using a library expecting ID-tokens to validate access
+			// tokens which have different audience (ID audience is the client
+			// access audience is the issuing server)
+			SkipClientIDCheck: true,
+		}),
 		oauth2: oauth2.Config{
 			ClientID:     cfg.ClientID,
 			ClientSecret: cfg.ClientSecret,
