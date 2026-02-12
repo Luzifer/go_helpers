@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Luzifer/go_helpers/v2/appauth/pkg/cache"
+	"github.com/Luzifer/go_helpers/appauth/v2/pkg/cache"
 	"golang.org/x/oauth2"
 )
 

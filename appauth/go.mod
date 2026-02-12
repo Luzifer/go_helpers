@@ -1,4 +1,4 @@
-module github.com/Luzifer/go_helpers/v2/appauth
+module github.com/Luzifer/go_helpers/appauth/v2
 
 go 1.25.7
 
