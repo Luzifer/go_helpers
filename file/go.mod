@@ -1,4 +1,4 @@
-module github.com/Luzifer/go_helpers/v2/file
+module github.com/Luzifer/go_helpers/file
 
 go 1.25.7
 

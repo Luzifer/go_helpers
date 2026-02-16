@@ -4,7 +4,7 @@ import (
 	"sort"
 	"testing"
 
-	. "github.com/Luzifer/go_helpers/v2/env"
+	. "github.com/Luzifer/go_helpers/env"
 	"github.com/stretchr/testify/assert"
 )
 

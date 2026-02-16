@@ -1,4 +1,4 @@
-module github.com/Luzifer/go_helpers/v2/backoff
+module github.com/Luzifer/go_helpers/backoff
 
 go 1.25.7
 

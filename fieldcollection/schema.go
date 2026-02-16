@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/Luzifer/go_helpers/v2/str"
+	"github.com/Luzifer/go_helpers/str"
 )
 
 const (

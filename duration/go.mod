@@ -1,4 +1,4 @@
-module github.com/Luzifer/go_helpers/v2/duration
+module github.com/Luzifer/go_helpers/duration
 
 go 1.25.7
 

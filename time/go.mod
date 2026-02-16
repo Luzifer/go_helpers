@@ -1,3 +1,3 @@
-module github.com/Luzifer/go_helpers/v2/time
+module github.com/Luzifer/go_helpers/time
 
 go 1.25.7

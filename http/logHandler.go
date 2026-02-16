@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Luzifer/go_helpers/v2/accessLogger"
+	"github.com/Luzifer/go_helpers/accesslogger"
 	"github.com/sirupsen/logrus"
 )
 
@@ -32,7 +32,7 @@ func NewHTTPLogHandlerWithLogger(h http.Handler, l logrus.StdLogger) http.Handle
 
 func (l HTTPLogHandler) ServeHTTP(res http.ResponseWriter, r *http.Request) {
 	start := time.Now()
-	ares := accessLogger.New(res)
+	ares := accesslogger.New(res)
 
 	l.Handler.ServeHTTP(ares, r)
 

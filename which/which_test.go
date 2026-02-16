@@ -3,7 +3,7 @@ package which_test
 import (
 	"testing"
 
-	. "github.com/Luzifer/go_helpers/v2/which"
+	. "github.com/Luzifer/go_helpers/which"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

@@ -3,7 +3,7 @@ package str_test
 import (
 	"testing"
 
-	. "github.com/Luzifer/go_helpers/v2/str"
+	. "github.com/Luzifer/go_helpers/str"
 	"github.com/stretchr/testify/assert"
 )
 

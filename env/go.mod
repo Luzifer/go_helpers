@@ -1,4 +1,4 @@
-module github.com/Luzifer/go_helpers/v2/env
+module github.com/Luzifer/go_helpers/env
 
 go 1.25.7
 

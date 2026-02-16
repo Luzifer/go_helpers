@@ -1,4 +1,4 @@
-module github.com/Luzifer/go_helpers/v2/float
+module github.com/Luzifer/go_helpers/float
 
 go 1.25.7
 

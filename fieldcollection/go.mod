@@ -1,3 +1,3 @@
-module github.com/Luzifer/go_helpers/v2/fieldcollection
+module github.com/Luzifer/go_helpers/fieldcollection
 
 go 1.25.7

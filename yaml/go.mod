@@ -1,4 +1,4 @@
-module github.com/Luzifer/go_helpers/v2/yaml
+module github.com/Luzifer/go_helpers/yaml
 
 go 1.25.7
 

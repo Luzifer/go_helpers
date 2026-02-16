@@ -1,4 +1,4 @@
-module github.com/Luzifer/go_helpers/v2/position
+module github.com/Luzifer/go_helpers/position
 
 go 1.25.7
 

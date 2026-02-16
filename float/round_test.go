@@ -4,7 +4,7 @@ import (
 	"math"
 	"testing"
 
-	. "github.com/Luzifer/go_helpers/v2/float"
+	. "github.com/Luzifer/go_helpers/float"
 	"github.com/stretchr/testify/assert"
 )
 

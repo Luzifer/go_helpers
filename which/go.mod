@@ -1,4 +1,4 @@
-module github.com/Luzifer/go_helpers/v2/which
+module github.com/Luzifer/go_helpers/which
 
 go 1.25.7
 

@@ -3,7 +3,7 @@ package position_test
 import (
 	"testing"
 
-	. "github.com/Luzifer/go_helpers/v2/position"
+	. "github.com/Luzifer/go_helpers/position"
 	"github.com/stretchr/testify/assert"
 )
 
