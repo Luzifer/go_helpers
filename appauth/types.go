@@ -1,7 +1,7 @@
 package appauth
 
 import (
-	"github.com/Luzifer/go_helpers/appauth/v2/pkg/cache"
+	"github.com/Luzifer/go_helpers/appauth/pkg/cache"
 	"github.com/coreos/go-oidc/v3/oidc"
 	"golang.org/x/oauth2"
 )

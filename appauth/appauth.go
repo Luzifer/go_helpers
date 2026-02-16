@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/Luzifer/go_helpers/appauth/v2/pkg/cache/mem"
+	"github.com/Luzifer/go_helpers/appauth/pkg/cache/mem"
 	"github.com/coreos/go-oidc/v3/oidc"
 	"golang.org/x/oauth2"
 )
