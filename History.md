@@ -1,3 +1,7 @@
+# 2.25.3 / 2026-02-16
+
+  * chore: deprecate mono-module
+
 # 2.25.2 / 2026-02-05
 
   * chore: replace deprecated YAML library
