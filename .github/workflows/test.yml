@@ -32,7 +32,7 @@ jobs:
 
       - name: Test code
         run: |
-          for module in $(find . -name 'go.mod' | cut -d / -f 2); do
+          for module in $(find . -name 'go.mod' | cut -d / -f 2 | sort); do
             echo "===> Running tests for ${module}"
             go test -v -cover "./$module/..."
             echo

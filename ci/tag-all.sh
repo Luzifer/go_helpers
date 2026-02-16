@@ -5,7 +5,7 @@ function log() {
   echo "[$(date +%H:%M:%S)] $@" >&2
 }
 
-for module in $(find . -name 'go.mod' | cut -d / -f 2); do
+for module in $(find . -name 'go.mod' | cut -d / -f 2 | sort); do
   log "Working in ${module}..."
 
   tag="${module}/v$(semver-from-commits -f "${module}")"
