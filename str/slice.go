@@ -1,3 +1,4 @@
+// Deprecated: use github.com/Luzifer/go_helpers/str instead.
 package str
 
 // AppendIfMissing adds a string to a slice when it's not present yet

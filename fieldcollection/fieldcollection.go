@@ -1,5 +1,7 @@
 // Package fieldcollection contains a map[string]any with accessor
 // methods to derive them into different formats
+//
+// Deprecated: use github.com/Luzifer/go_helpers/fieldcollection instead.
 package fieldcollection
 
 import (

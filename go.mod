@@ -1,3 +1,5 @@
+// Deprecated: This module is frozen. Please migrate to the per-package modules,
+// i.e. github.com/Luzifer/go_helpers/yaml, github.com/Luzifer/go_helpers/http, etc.
 module github.com/Luzifer/go_helpers/v2
 
 go 1.24

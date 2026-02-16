@@ -1,4 +1,6 @@
 // Package yaml contains a method to convert a YAML into a JSON object
+//
+// Deprecated: use github.com/Luzifer/go_helpers/yaml instead.
 package yaml
 
 import (

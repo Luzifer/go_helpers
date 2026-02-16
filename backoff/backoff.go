@@ -1,5 +1,7 @@
 // Package backoff contains a configurable retry-functionality using
 // either exponential or constant backoff
+//
+// Deprecated: use github.com/Luzifer/go_helpers/backoff instead.
 package backoff
 
 import (

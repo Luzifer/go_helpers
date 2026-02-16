@@ -1,3 +1,4 @@
+// Deprecated: use github.com/Luzifer/go_helpers/splitter instead.
 package splitter
 
 import (

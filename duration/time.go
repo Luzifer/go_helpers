@@ -1,3 +1,4 @@
+// Deprecated: use github.com/Luzifer/go_helpers/duration instead.
 package duration
 
 import (

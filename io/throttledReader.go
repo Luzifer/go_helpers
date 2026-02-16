@@ -1,4 +1,6 @@
 // Package io contains helpers for I/O tasks
+//
+// Deprecated: use github.com/Luzifer/go_helpers/io instead.
 package io
 
 import (

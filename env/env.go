@@ -1,3 +1,4 @@
+// Deprecated: use github.com/Luzifer/go_helpers/env instead.
 package env
 
 import "strings"
