@@ -92,10 +92,10 @@ func TestIntegration(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, status)
 
-	assert.Contains(t, body, `"access_token":"`, "there should be an access token")
+	assert.Contains(t, body, `token: "`, "there should be an access token")
 
 	// Get the access token from the body
-	match := regexp.MustCompile(`"access_token":"([^"]+)"`).FindStringSubmatch(body)
+	match := regexp.MustCompile(`token: "([^"]+)"`).FindStringSubmatch(body)
 	require.Len(t, match, 2)
 	token := match[1]
 
