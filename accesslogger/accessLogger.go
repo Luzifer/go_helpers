@@ -1,4 +1,4 @@
-package accessLogger
+package accesslogger
 
 import (
 	"fmt"
