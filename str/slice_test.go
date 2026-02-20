@@ -1,9 +1,8 @@
-package str_test
+package str
 
 import (
 	"testing"
 
-	. "github.com/Luzifer/go_helpers/str"
 	"github.com/stretchr/testify/assert"
 )
 
