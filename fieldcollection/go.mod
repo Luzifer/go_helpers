@@ -3,7 +3,6 @@ module github.com/Luzifer/go_helpers/fieldcollection
 go 1.25.7
 
 require (
-	github.com/Luzifer/go_helpers/str v0.4.1
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.11.1
 	go.yaml.in/yaml/v3 v3.0.4

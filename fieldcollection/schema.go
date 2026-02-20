@@ -2,10 +2,9 @@ package fieldcollection
 
 import (
 	"fmt"
+	"slices"
 	"sort"
 	"strings"
-
-	"github.com/Luzifer/go_helpers/str"
 )
 
 const (
@@ -81,7 +80,7 @@ func MustHaveNoUnknowFields(f *FieldCollection, validateStore *FieldCollection) 
 	var unexpected []string
 
 	for _, k := range f.Keys() {
-		if !str.StringInSlice(k, validateStore.MustStringSlice(knownFields, nil)) {
+		if !slices.Contains(validateStore.MustStringSlice(knownFields, nil), k) {
 			unexpected = append(unexpected, k)
 		}
 	}
