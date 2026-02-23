@@ -4,7 +4,7 @@ go 1.25.7
 
 require (
 	github.com/Luzifer/go_helpers/accesslogger v0.1.1
-	github.com/Luzifer/go_helpers/str v0.4.1
+	github.com/Luzifer/go_helpers/str v0.5.0
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.4
 	github.com/stretchr/testify v1.11.1
