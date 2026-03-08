@@ -2,6 +2,7 @@ package appauth
 
 import (
 	"slices"
+	"strings"
 )
 
 func extractRoles(claims map[string]any, clientID string) []string {
@@ -12,11 +13,13 @@ func extractRoles(claims map[string]any, clientID string) []string {
 		out = append(out, extractStringSlice(ra["roles"])...)
 	}
 
-	// resource_access[clientID].roles
+	// resource_access[clientID].roles as explicit `clientID/role`
 	if clientID != "" {
 		if res, ok := claims["resource_access"].(map[string]any); ok {
 			if c, ok := res[clientID].(map[string]any); ok {
-				out = append(out, extractStringSlice(c["roles"])...)
+				for _, roleName := range extractStringSlice(c["roles"]) {
+					out = append(out, strings.Join([]string{clientID, roleName}, "/"))
+				}
 			}
 		}
 	}

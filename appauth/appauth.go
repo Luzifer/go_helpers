@@ -83,9 +83,15 @@ func (*Auth) authorize(u *User, opts Opts) bool {
 func (a *Auth) verifyAccessToken(ctx context.Context, raw string) (*User, error) {
 	// Verify signature + issuer etc. by parsing as an IDToken-ish structure.
 	// This works for JWT access tokens because OIDC provider keys verify JWTs.
-	_, err := a.verifier.Verify(ctx, raw)
+	tok, err := a.verifier.Verify(ctx, raw)
 	if err != nil {
 		return nil, fmt.Errorf("verifying access token: %w", err)
+	}
+
+	// Best effort: parse JWT claims for fallback role extraction.
+	var tokenClaims map[string]any
+	if err := tok.Claims(&tokenClaims); err != nil {
+		a.logf("auth: parsing access token claims for role fallback failed err=%v", err)
 	}
 
 	ui, err := a.provider.UserInfo(ctx, oauth2.StaticTokenSource(&oauth2.Token{
@@ -111,6 +117,10 @@ func (a *Auth) verifyAccessToken(ctx context.Context, raw string) (*User, error)
 
 	u.Groups = extractStringSlice(claims["groups"])
 	u.Roles = extractRoles(claims, a.cfg.ClientID)
+
+	if len(u.Roles) == 0 && len(tokenClaims) > 0 {
+		u.Roles = extractRoles(tokenClaims, a.cfg.ClientID)
+	}
 
 	return u, nil
 }
