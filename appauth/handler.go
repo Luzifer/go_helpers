@@ -207,5 +207,10 @@ func (a *Auth) popupCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writePostMessageAndClose(w, targetOrigin, sessID)
+	var user *User
+	if user, err = a.verifyAccessToken(r.Context(), access); err != nil {
+		a.logf("popup: retrieving user for postMessage failed err=%v", err)
+	}
+
+	writePostMessageAndClose(w, targetOrigin, sessID, user)
 }

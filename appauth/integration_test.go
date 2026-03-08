@@ -93,6 +93,14 @@ func TestIntegration(t *testing.T) {
 	require.Equal(t, http.StatusOK, status)
 
 	assert.Contains(t, body, `token: "`, "there should be an access token")
+	for _, claim := range []string{
+		`user: {`,
+		`"email":"jane.doe@example.com"`,
+		`"groups":["engineering","design"]`,
+		`"preferred_username":"jane.doe"`,
+	} {
+		assert.Contains(t, body, claim)
+	}
 
 	// Get the access token from the body
 	match := regexp.MustCompile(`token: "([^"]+)"`).FindStringSubmatch(body)
