@@ -23,11 +23,6 @@ const (
 // from the request context in the next Handler
 func (a *Auth) RequireAuth(next http.Handler, opts Opts) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodOptions {
-			next.ServeHTTP(w, r)
-			return
-		}
-
 		tokenType, token, ok := strings.Cut(r.Header.Get("Authorization"), " ")
 		if !ok {
 			a.logf("auth: missing authorization path=%s", r.URL.Path)
