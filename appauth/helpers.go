@@ -1,6 +1,7 @@
 package appauth
 
 import (
+	"fmt"
 	"slices"
 	"strings"
 )
@@ -50,4 +51,21 @@ func extractStringSlice(v any) []string {
 func str(v any) string {
 	s, _ := v.(string)
 	return s
+}
+
+func verifySubjectConsistency(tokenClaims, userInfoClaims map[string]any) error {
+	tokenSub := str(tokenClaims["sub"])
+	userInfoSub := str(userInfoClaims["sub"])
+
+	if tokenSub == "" || userInfoSub == "" {
+		// Some providers / token profiles may not expose sub consistently
+		// across token/userinfo claims through this verifier path.
+		return nil
+	}
+
+	if tokenSub != userInfoSub {
+		return fmt.Errorf("subject mismatch between token and userinfo")
+	}
+
+	return nil
 }

@@ -108,6 +108,10 @@ func (a *Auth) verifyAccessToken(ctx context.Context, raw string) (*User, error)
 		return nil, fmt.Errorf("parsing claims into map: %w", err)
 	}
 
+	if err := verifySubjectConsistency(tokenClaims, claims); err != nil {
+		return nil, fmt.Errorf("verifying token subject: %w", err)
+	}
+
 	u := &User{
 		Sub:   str(claims["sub"]),
 		Email: str(claims["email"]),
