@@ -196,11 +196,14 @@ func (a *Auth) popupCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	now := time.Now()
 	if err = a.sessionCache.SetSession(sessID, cache.Session{
 		AccessToken:  access,
 		IDToken:      idt,
 		RefreshToken: refresh,
 		Expires:      tok.Expiry,
+		CreatedAt:    now,
+		LastSeen:     now,
 	}); err != nil {
 		a.logf("popup: writing session err=%v", err)
 		writeClosePage(w, "Writing session failed.")

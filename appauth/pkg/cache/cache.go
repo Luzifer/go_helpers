@@ -19,7 +19,9 @@ type (
 		IDToken      string
 		RefreshToken string
 
-		Expires time.Time // AT expiry
+		Expires   time.Time // AT expiry
+		CreatedAt time.Time // first creation of this session
+		LastSeen  time.Time // updated on successful usage
 	}
 )
 

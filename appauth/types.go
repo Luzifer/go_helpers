@@ -1,6 +1,8 @@
 package appauth
 
 import (
+	"time"
+
 	"github.com/Luzifer/go_helpers/appauth/pkg/cache"
 	"github.com/coreos/go-oidc/v3/oidc"
 	"golang.org/x/oauth2"
@@ -33,6 +35,13 @@ type (
 
 		// Who may receive tokens via postMessage (strict allowlist)
 		AllowedPostMessageOrigins []string
+
+		// SessionIdleTimeout expires sessions after this much inactivity.
+		// Set to 0 to disable.
+		SessionIdleTimeout time.Duration
+		// SessionAbsoluteTimeout expires sessions after this total lifetime.
+		// Set to 0 to disable.
+		SessionAbsoluteTimeout time.Duration
 
 		Logger Logger      // optional
 		Cache  cache.Cache // optional

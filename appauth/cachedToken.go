@@ -14,8 +14,31 @@ func (a *Auth) exchangeTokenThroughCache(ctx context.Context, sessID string) (to
 		return "", fmt.Errorf("getting session from cache: %w", err)
 	}
 
-	if sess.Expires.After(time.Now()) {
+	now := time.Now()
+	if sess.CreatedAt.IsZero() {
+		sess.CreatedAt = now
+	}
+	if sess.LastSeen.IsZero() {
+		sess.LastSeen = now
+	}
+
+	if a.cfg.SessionAbsoluteTimeout > 0 && sess.CreatedAt.Add(a.cfg.SessionAbsoluteTimeout).Before(now) {
+		_ = a.sessionCache.RemoveSession(sessID)
+		return "", fmt.Errorf("session expired by absolute timeout")
+	}
+
+	if a.cfg.SessionIdleTimeout > 0 && sess.LastSeen.Add(a.cfg.SessionIdleTimeout).Before(now) {
+		_ = a.sessionCache.RemoveSession(sessID)
+		return "", fmt.Errorf("session expired by idle timeout")
+	}
+
+	sess.LastSeen = now
+
+	if sess.Expires.After(now) {
 		// Access token is still valid
+		if err = a.sessionCache.SetSession(sessID, sess); err != nil {
+			return "", fmt.Errorf("updating session usage: %w", err)
+		}
 		return sess.AccessToken, nil
 	}
 
