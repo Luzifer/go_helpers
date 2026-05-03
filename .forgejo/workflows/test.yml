@@ -1,0 +1,23 @@
+name: test-and-build
+
+on: [push]
+
+jobs:
+  test:
+    defaults:
+      run:
+        shell: sh
+
+    container:
+      image: ghcr.io/luzifer-docker/action-env:master
+      env:
+        CGO_ENABLED: 0
+        GOPATH: /go
+
+    runs-on: forgejo
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Test code
+        run: make test
