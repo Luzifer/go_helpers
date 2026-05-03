@@ -116,10 +116,10 @@ func (a *Auth) popupStart(w http.ResponseWriter, r *http.Request) {
 	origin := r.URL.Query().Get("origin") // the opener's origin
 
 	// Store values for callback validation
-	setCookie(w, r, "oidc_state", state, flowCookieTimeout)
-	setCookie(w, r, "oidc_verifier", verifier, flowCookieTimeout)
+	setCookie(w, "oidc_state", state, flowCookieTimeout, a.cfg.InsecureCookie)
+	setCookie(w, "oidc_verifier", verifier, flowCookieTimeout, a.cfg.InsecureCookie)
 	if origin != "" {
-		setCookie(w, r, "oidc_origin", origin, flowCookieTimeout)
+		setCookie(w, "oidc_origin", origin, flowCookieTimeout, a.cfg.InsecureCookie)
 	}
 
 	challenge := pkceChallengeS256(verifier)

@@ -2,10 +2,8 @@ package appauth
 
 import (
 	"fmt"
-	"net"
 	"net/http"
 	"net/url"
-	"strings"
 	"time"
 )
 
@@ -23,31 +21,14 @@ func readCookie(r *http.Request, name string) (string, error) {
 	return v, nil
 }
 
-func setCookie(w http.ResponseWriter, r *http.Request, name, val string, ttl time.Duration) {
-	http.SetCookie(w, &http.Cookie{
+func setCookie(w http.ResponseWriter, name, val string, ttl time.Duration, useInsecureCookie bool) {
+	http.SetCookie(w, &http.Cookie{ //#nosec:G124 // Secure defaults to true; callers must explicitly opt into insecure cookies for local HTTP/test deployments.
 		Name:     name,
 		Value:    url.QueryEscape(val),
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   !isLocalHost(r.Host),
+		Secure:   !useInsecureCookie,
 		SameSite: http.SameSiteLaxMode,
 		Expires:  time.Now().Add(ttl),
 	})
-}
-
-func isLocalHost(hostport string) bool {
-	host := hostport
-
-	if h, _, err := net.SplitHostPort(hostport); err == nil {
-		host = h
-	}
-
-	host = strings.Trim(host, "[]")
-
-	switch host {
-	case "localhost", "127.0.0.1", "::1":
-		return true
-	default:
-		return false
-	}
 }

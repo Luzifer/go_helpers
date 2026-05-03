@@ -43,6 +43,10 @@ type (
 		// Set to 0 to disable.
 		SessionAbsoluteTimeout time.Duration
 
+		// InsecureCookie disables the Secure flag on popup flow cookies.
+		// Use this only for local HTTP development or test servers.
+		InsecureCookie bool
+
 		Logger Logger      // optional
 		Cache  cache.Cache // optional
 	}

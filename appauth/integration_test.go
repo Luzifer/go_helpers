@@ -38,6 +38,7 @@ func TestIntegration(t *testing.T) {
 
 	// Create Auth
 	a, err := New(Config{
+		InsecureCookie:            true, // required on Go 1.25 tests
 		IssuerURL:                 oidcSrv.Issuer(),
 		ClientID:                  oidcSrv.ClientID,
 		ClientSecret:              oidcSrv.ClientSecret,
