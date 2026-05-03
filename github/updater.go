@@ -1,3 +1,4 @@
+// Package github provides helpers for self-updating binaries from GitHub releases.
 package github
 
 import (
@@ -23,22 +24,22 @@ const (
 	defaultNamingScheme = `{{.ProductName}}_{{.GOOS}}_{{.GOARCH}}{{.EXT}}`
 )
 
-var (
-	errReleaseNotFound = errors.New("Release not found")
+// Updater is the core struct of the update library holding all configurations
+type (
+	Updater struct {
+		repo      string
+		myVersion string
+
+		HTTPClient     *http.Client
+		RequestTimeout time.Duration
+		Context        context.Context //nolint:containedctx // kept for historical purposes
+		Filename       string
+
+		releaseCache string
+	}
 )
 
-// Updater is the core struct of the update library holding all configurations
-type Updater struct {
-	repo      string
-	myVersion string
-
-	HTTPClient     *http.Client
-	RequestTimeout time.Duration
-	Context        context.Context
-	Filename       string
-
-	releaseCache string
-}
+var errReleaseNotFound = errors.New("release not found")
 
 // NewUpdater initializes a new Updater and tries to guess the Filename
 func NewUpdater(repo, myVersion string) (*Updater, error) {
@@ -57,7 +58,48 @@ func NewUpdater(repo, myVersion string) (*Updater, error) {
 	return u, err
 }
 
-// HasUpdate checks which tag was used in the latest version and compares it to the current version. If it differs the function will return true. No comparison is done to determine whether the found version is higher than the current one.
+// Apply downloads the new binary from Github, fetches the SHA256 sum
+// from the SHA256SUMS file and applies the update to the currently
+// running binary
+func (u *Updater) Apply() (err error) {
+	updateAvailable, err := u.HasUpdate(false)
+	if err != nil {
+		return err
+	}
+	if !updateAvailable {
+		return nil
+	}
+
+	checksum, err := u.getSHA256()
+	if err != nil {
+		return err
+	}
+
+	newRelease, err := u.getFile(u.Filename)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if closeErr := newRelease.Close(); closeErr != nil {
+			err = errors.Join(err, fmt.Errorf("closing release file: %w", closeErr))
+		}
+	}()
+
+	if err = update.Apply(newRelease, update.Options{
+		Checksum: checksum,
+	}); err != nil {
+		return fmt.Errorf("applying update: %w", err)
+	}
+
+	return nil
+}
+
+// HasUpdate checks which tag was used in the latest version and compares
+// it to the current version. If it differs the function will return
+// true. No comparison is done to determine whether the found version
+// is higher than the current one.
+//
+//revive:disable-next-line:flag-parameter // does not switch to alternative behavior, just disables cache
 func (u *Updater) HasUpdate(forceRefresh bool) (bool, error) {
 	if forceRefresh {
 		u.releaseCache = ""
@@ -74,79 +116,73 @@ func (u *Updater) HasUpdate(forceRefresh bool) (bool, error) {
 	}
 }
 
-// Apply downloads the new binary from Github, fetches the SHA256 sum from the SHA256SUMS file and applies the update to the currently running binary
-func (u *Updater) Apply() error {
-	updateAvailable, err := u.HasUpdate(false)
-	if err != nil {
-		return err
-	}
-	if !updateAvailable {
-		return nil
+func (u Updater) compileFilename() (string, error) {
+	repoName := strings.Split(u.repo, "/")
+	if len(repoName) != 2 {
+		return "", fmt.Errorf("repository name not in format <owner>/<repository>")
 	}
 
-	checksum, err := u.getSHA256(u.Filename)
+	tpl, err := template.New("filename").Parse(defaultNamingScheme)
 	if err != nil {
-		return err
+		return "", fmt.Errorf("parsing template: %w", err)
 	}
 
-	newRelease, err := u.getFile(u.Filename)
-	if err != nil {
-		return err
+	var ext string
+	if runtime.GOOS == "windows" {
+		ext = ".exe"
 	}
-	defer newRelease.Close()
 
-	return update.Apply(newRelease, update.Options{
-		Checksum: checksum,
-	})
+	buf := new(bytes.Buffer)
+	if err = tpl.Execute(buf, map[string]any{
+		"GOOS":        runtime.GOOS,
+		"GOARCH":      runtime.GOARCH,
+		"EXT":         ext,
+		"ProductName": repoName[1],
+	}); err != nil {
+		return "", fmt.Errorf("executing template: %w", err)
+	}
+
+	return buf.String(), nil
 }
 
-func (u Updater) getSHA256(filename string) ([]byte, error) {
-	shaFile, err := u.getFile("SHA256SUMS")
-	if err != nil {
-		return nil, err
-	}
-	defer shaFile.Close()
-
-	scanner := bufio.NewScanner(shaFile)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if !strings.Contains(line, u.Filename) {
-			continue
-		}
-
-		return hex.DecodeString(line[0:64])
-	}
-
-	return nil, fmt.Errorf("No SHA256 found for file %q", u.Filename)
-}
-
-func (u Updater) getFile(filename string) (io.ReadCloser, error) {
+func (u Updater) getFile(filename string) (file io.ReadCloser, err error) {
 	release, err := u.getLatestRelease()
 	if err != nil {
 		return nil, err
 	}
 
+	ctx, cancel := context.WithTimeout(u.Context, u.RequestTimeout)
+	defer cancel()
+
 	requestURL := fmt.Sprintf("https://github.com/%s/releases/download/%s/%s", u.repo, release, filename)
-	req, err := http.NewRequest("GET", requestURL, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, requestURL, nil)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("creating request: %w", err)
 	}
 
-	ctx, _ := context.WithTimeout(u.Context, u.RequestTimeout)
-
-	res, err := u.HTTPClient.Do(req.WithContext(ctx))
+	res, err := u.HTTPClient.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("executing request: %w", err)
+	}
+	defer func() {
+		if closeErr := res.Body.Close(); closeErr != nil {
+			err = errors.Join(err, fmt.Errorf("closing response body: %w", closeErr))
+		}
+	}()
+
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("file not found: %q", requestURL)
 	}
 
-	if res.StatusCode != 200 {
-		return nil, fmt.Errorf("File not found: %q", requestURL)
+	buf := new(bytes.Buffer)
+	if _, err = io.Copy(buf, res.Body); err != nil {
+		return nil, fmt.Errorf("caching data in memory: %w", err)
 	}
 
-	return res.Body, nil
+	return io.NopCloser(buf), nil
 }
 
-func (u *Updater) getLatestRelease() (string, error) {
+func (u *Updater) getLatestRelease() (release string, err error) {
 	if u.releaseCache != "" {
 		return u.releaseCache, nil
 	}
@@ -155,26 +191,30 @@ func (u *Updater) getLatestRelease() (string, error) {
 		TagName string `json:"tag_name"`
 	}{}
 
-	requestURL := fmt.Sprintf("https://api.github.com/repos/%s/releases/latest", u.repo)
-	req, err := http.NewRequest("GET", requestURL, nil)
-	if err != nil {
-		return "", err
-	}
-
 	ctx, cancel := context.WithTimeout(u.Context, u.RequestTimeout)
 	defer cancel()
 
-	res, err := u.HTTPClient.Do(req.WithContext(ctx))
+	requestURL := fmt.Sprintf("https://api.github.com/repos/%s/releases/latest", u.repo)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, requestURL, nil)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("creating request: %w", err)
 	}
-	defer res.Body.Close()
+
+	res, err := u.HTTPClient.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("executing request: %w", err)
+	}
+	defer func() {
+		if closeErr := res.Body.Close(); closeErr != nil {
+			err = errors.Join(err, fmt.Errorf("closing response body: %w", closeErr))
+		}
+	}()
 
 	if err = json.NewDecoder(res.Body).Decode(&result); err != nil {
-		return "", err
+		return "", fmt.Errorf("decoding result: %w", err)
 	}
 
-	if res.StatusCode != 200 || result.TagName == "" {
+	if res.StatusCode != http.StatusOK || result.TagName == "" {
 		return "", errReleaseNotFound
 	}
 
@@ -183,31 +223,35 @@ func (u *Updater) getLatestRelease() (string, error) {
 	return result.TagName, nil
 }
 
-func (u Updater) compileFilename() (string, error) {
-	repoName := strings.Split(u.repo, "/")
-	if len(repoName) != 2 {
-		return "", errors.New("Repository name not in format <owner>/<repository>")
-	}
-
-	tpl, err := template.New("filename").Parse(defaultNamingScheme)
+func (u Updater) getSHA256() (h []byte, err error) {
+	shaFile, err := u.getFile("SHA256SUMS")
 	if err != nil {
-		return "", err
+		return nil, err
+	}
+	defer func() {
+		if closeErr := shaFile.Close(); closeErr != nil {
+			err = errors.Join(err, fmt.Errorf("closing SHA256SUMS file: %w", closeErr))
+		}
+	}()
+
+	scanner := bufio.NewScanner(shaFile)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if !strings.Contains(line, u.Filename) {
+			continue
+		}
+
+		h, err = hex.DecodeString(line[0:64])
+		if err != nil {
+			return nil, fmt.Errorf("decoding hash: %w", err)
+		}
+
+		return h, nil
 	}
 
-	var ext string
-	if runtime.GOOS == "windows" {
-		ext = ".exe"
+	if err = scanner.Err(); err != nil {
+		return nil, fmt.Errorf("scanning SHA256SUMS: %w", err)
 	}
 
-	buf := bytes.NewBuffer([]byte{})
-	if err = tpl.Execute(buf, map[string]interface{}{
-		"GOOS":        runtime.GOOS,
-		"GOARCH":      runtime.GOARCH,
-		"EXT":         ext,
-		"ProductName": repoName[1],
-	}); err != nil {
-		return "", err
-	}
-
-	return buf.String(), nil
+	return nil, fmt.Errorf("no SHA256 found for file %q", u.Filename)
 }

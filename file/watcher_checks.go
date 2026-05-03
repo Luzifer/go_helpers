@@ -2,13 +2,12 @@ package file
 
 import (
 	"crypto/sha512"
+	"errors"
 	"fmt"
 	"hash"
 	"io"
 	"io/fs"
 	"os"
-
-	"github.com/pkg/errors"
 )
 
 const (
@@ -18,12 +17,19 @@ const (
 	keyWatcherCheckSize     = "WatcherCheckSize"
 )
 
+var (
+	_ WatcherCheck = WatcherCheckHash(sha512.New)
+	_ WatcherCheck = WatcherCheckMtime
+	_ WatcherCheck = WatcherCheckPresence
+	_ WatcherCheck = WatcherCheckSize
+)
+
 // WatcherCheckHash returns a WatcherCheck configured with the given
 // hash method (i.e. provide md5.New, sha1.New, ...). If the file is
 // not present at the time of the check the check is skipped and will
 // NOT cause an error.
 func WatcherCheckHash(hcf func() hash.Hash) WatcherCheck {
-	return func(w *Watcher) (WatcherEvent, error) {
+	return func(w *Watcher) (event WatcherEvent, err error) {
 		var lastHash string
 		if v, ok := w.GetState(keyWatcherCheckHash).(string); ok {
 			lastHash = v
@@ -35,13 +41,17 @@ func WatcherCheckHash(hcf func() hash.Hash) WatcherCheck {
 
 		f, err := os.Open(w.FilePath)
 		if err != nil {
-			return WatcherEventInvalid, errors.Wrap(err, "opening file")
+			return WatcherEventInvalid, fmt.Errorf("opening file: %w", err)
 		}
-		defer f.Close()
+		defer func() {
+			if closeErr := f.Close(); closeErr != nil {
+				err = errors.Join(err, fmt.Errorf("closing file: %w", closeErr))
+			}
+		}()
 
 		h := hcf()
 		if _, err = io.Copy(h, f); err != nil {
-			return WatcherEventInvalid, errors.Wrap(err, "reading file")
+			return WatcherEventInvalid, fmt.Errorf("reading file: %w", err)
 		}
 
 		currentHash := fmt.Sprintf("%x", h.Sum(nil))
@@ -53,8 +63,6 @@ func WatcherCheckHash(hcf func() hash.Hash) WatcherCheck {
 		return WatcherEventFileModified, nil
 	}
 }
-
-var _ WatcherCheck = WatcherCheckHash(sha512.New)
 
 // WatcherCheckMtime checks whether the mtime attribute of the file
 // has changed. If the file is not present at the time of the check
@@ -72,7 +80,7 @@ func WatcherCheckMtime(w *Watcher) (WatcherEvent, error) {
 	case errors.Is(err, fs.ErrNotExist):
 		return WatcherEventInvalid, nil
 	default:
-		return WatcherEventInvalid, errors.Wrap(err, "getting file stat")
+		return WatcherEventInvalid, fmt.Errorf("getting file stat: %w", err)
 	}
 
 	if s.ModTime().UnixNano() == lastChange {
@@ -82,8 +90,6 @@ func WatcherCheckMtime(w *Watcher) (WatcherEvent, error) {
 	w.SetState(keyWatcherCheckMtime, s.ModTime().UnixNano())
 	return WatcherEventFileModified, nil
 }
-
-var _ WatcherCheck = WatcherCheckMtime
 
 // WatcherCheckPresence simply checks whether the file is present and
 // allows to emit WatcherEventFileAppeared / WatcherEventFileVanished
@@ -97,7 +103,7 @@ func WatcherCheckPresence(w *Watcher) (WatcherEvent, error) {
 	_, err := w.stat(w.FilePath)
 	if err != nil && !errors.Is(err, fs.ErrNotExist) {
 		// Some weird error occurred
-		return WatcherEventInvalid, errors.Wrap(err, "getting file stat")
+		return WatcherEventInvalid, fmt.Errorf("getting file stat: %w", err)
 	}
 
 	isPresent := err == nil
@@ -112,8 +118,6 @@ func WatcherCheckPresence(w *Watcher) (WatcherEvent, error) {
 		return WatcherEventNoChange, nil
 	}
 }
-
-var _ WatcherCheck = WatcherCheckPresence
 
 // WatcherCheckSize checks whether the size of the file has changed.
 // If the file is not present at the time of the check the check is
@@ -131,7 +135,7 @@ func WatcherCheckSize(w *Watcher) (WatcherEvent, error) {
 	case errors.Is(err, fs.ErrNotExist):
 		return WatcherEventInvalid, nil
 	default:
-		return WatcherEventInvalid, errors.Wrap(err, "getting file stat")
+		return WatcherEventInvalid, fmt.Errorf("getting file stat: %w", err)
 	}
 
 	if s.Size() == knownSize {
@@ -141,5 +145,3 @@ func WatcherCheckSize(w *Watcher) (WatcherEvent, error) {
 	w.SetState(keyWatcherCheckSize, s.Size())
 	return WatcherEventFileModified, nil
 }
-
-var _ WatcherCheck = WatcherCheckSize

@@ -57,7 +57,7 @@ func TestVerifySubjectConsistency(t *testing.T) {
 func TestVerifySubjectConsistencyMissingUserInfoSubjectIsAccepted(t *testing.T) {
 	err := verifySubjectConsistency(
 		map[string]any{"sub": "abc"},
-		map[string]any{},
+		make(map[string]any),
 	)
 
 	require.NoError(t, err)
@@ -65,7 +65,7 @@ func TestVerifySubjectConsistencyMissingUserInfoSubjectIsAccepted(t *testing.T) 
 
 func TestVerifySubjectConsistencyMissingTokenSubjectIsAccepted(t *testing.T) {
 	err := verifySubjectConsistency(
-		map[string]any{},
+		make(map[string]any),
 		map[string]any{"sub": "abc"},
 	)
 

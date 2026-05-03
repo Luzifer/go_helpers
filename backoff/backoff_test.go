@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var errTestError = errors.New("Test-Error")
@@ -16,7 +17,7 @@ func TestBreakFree(t *testing.T) {
 		seen++
 		return NewErrCannotRetry(errTestError)
 	})
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Equal(t, 1, seen)
 	assert.Equal(t, errTestError, err)
 }

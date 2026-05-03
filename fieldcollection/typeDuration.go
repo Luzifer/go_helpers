@@ -1,10 +1,9 @@
 package fieldcollection
 
 import (
+	"errors"
 	"fmt"
 	"time"
-
-	"github.com/pkg/errors"
 )
 
 // CanDuration tries to read key name as time.Duration and checks whether error is nil

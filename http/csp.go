@@ -1,21 +1,11 @@
-package http
+// Package http provides helpers for HTTP headers, authentication, and logging.
+package http //revive:disable-line:package-naming // kept for historical reasons
 
 import (
 	"encoding/base64"
 	"fmt"
 	"sort"
 	"strings"
-)
-
-type (
-	// CSP is a non-concurrency-safe map to hold a Content-Security-Policy
-	// and manipulate it afterwards to eventually render it into its
-	// header-representation
-	CSP map[string][]CSPSourceValue
-	// CSPHashAlgo defines the available hash algorithms
-	CSPHashAlgo string
-	// CSPSourceValue represents an value in the map for a given directive
-	CSPSourceValue string
 )
 
 // Collection of pre-defined values. For documentation see
@@ -40,6 +30,17 @@ const (
 	CSPSrcSchemeFilesystem  CSPSourceValue = "filesystem:"
 )
 
+type (
+	// CSP is a non-concurrency-safe map to hold a Content-Security-Policy
+	// and manipulate it afterwards to eventually render it into its
+	// header-representation
+	CSP map[string][]CSPSourceValue
+	// CSPHashAlgo defines the available hash algorithms
+	CSPHashAlgo string
+	// CSPSourceValue represents an value in the map for a given directive
+	CSPSourceValue string
+)
+
 // CSPSrcHash takes an algo (sha256, sha384 or sha512) and the sum
 // value and converts it into the right representation for the header
 func CSPSrcHash(algo CSPHashAlgo, sum []byte) CSPSourceValue {
@@ -61,7 +62,7 @@ func (c CSP) Add(directive string, value CSPSourceValue) {
 func (c CSP) Clone() CSP {
 	n := make(CSP)
 	for dir, vals := range c {
-		n[dir] = append([]CSPSourceValue{}, vals...)
+		n[dir] = append(([]CSPSourceValue)(nil), vals...)
 	}
 	return n
 }

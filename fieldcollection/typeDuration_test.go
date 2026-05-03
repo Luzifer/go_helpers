@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestDuration(t *testing.T) {
@@ -17,24 +18,24 @@ func TestDuration(t *testing.T) {
 	})
 
 	_, err := fc.Duration("_")
-	assert.ErrorIs(t, err, ErrValueNotSet)
+	require.ErrorIs(t, err, ErrValueNotSet)
 
 	_, err = fc.Duration("bool")
-	assert.ErrorIs(t, err, ErrValueMismatch)
+	require.ErrorIs(t, err, ErrValueMismatch)
 
 	_, err = fc.Duration("invalidString")
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	v, err := fc.Duration("valid")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, time.Second, v)
 
 	v, err = fc.Duration("validString")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, 12*time.Minute, v)
 
 	v, err = fc.Duration("int")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, 12*time.Nanosecond, v)
 
 	assert.True(t, fc.CanDuration("valid"))

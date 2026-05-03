@@ -1,9 +1,8 @@
 package fieldcollection
 
 import (
+	"errors"
 	"fmt"
-
-	"github.com/pkg/errors"
 )
 
 // CanString tries to read key name as string and checks whether error is nil

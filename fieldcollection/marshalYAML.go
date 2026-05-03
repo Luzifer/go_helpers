@@ -1,6 +1,6 @@
 package fieldcollection
 
-import "github.com/pkg/errors"
+import "fmt"
 
 // Implement YAML marshalling to plain underlying map[string]any
 
@@ -13,7 +13,7 @@ func (f *FieldCollection) MarshalYAML() (any, error) {
 func (f *FieldCollection) UnmarshalYAML(unmarshal func(any) error) error {
 	data := make(map[string]any)
 	if err := unmarshal(&data); err != nil {
-		return errors.Wrap(err, "unmarshalling from YAML")
+		return fmt.Errorf("unmarshalling from YAML: %w", err)
 	}
 
 	f.SetFromData(data)

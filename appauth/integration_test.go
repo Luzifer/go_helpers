@@ -77,7 +77,7 @@ func TestIntegration(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, http.StatusFound, status, body)
 
-	authRedirect := headers.Get("location")
+	authRedirect := headers.Get("Location")
 	assert.NotEmpty(t, authRedirect)
 
 	// Call the OIDC redirect
@@ -85,7 +85,7 @@ func TestIntegration(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, http.StatusFound, status, body)
 
-	authRedirect = headers.Get("location")
+	authRedirect = headers.Get("Location")
 	require.NotEmpty(t, authRedirect)
 
 	// Back to the Popup
@@ -141,7 +141,7 @@ func testReq(client *http.Client, method, url string, inHdr http.Header) (body s
 	if err != nil {
 		return "", nil, 0, fmt.Errorf("executing request: %w", err)
 	}
-	defer resp.Body.Close() //nolint:errcheck
+	defer resp.Body.Close() //nolint:errcheck // only a test client
 
 	bodyRaw, err := io.ReadAll(resp.Body)
 	if err != nil {

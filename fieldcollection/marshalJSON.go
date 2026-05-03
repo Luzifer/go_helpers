@@ -3,8 +3,6 @@ package fieldcollection
 import (
 	"encoding/json"
 	"fmt"
-
-	"github.com/pkg/errors"
 )
 
 // Implement JSON marshalling to plain underlying map[string]any
@@ -30,7 +28,7 @@ func (f *FieldCollection) MarshalJSON() ([]byte, error) {
 func (f *FieldCollection) UnmarshalJSON(raw []byte) error {
 	data := make(map[string]any)
 	if err := json.Unmarshal(raw, &data); err != nil {
-		return errors.Wrap(err, "unmarshalling from JSON")
+		return fmt.Errorf("unmarshalling from JSON: %w", err)
 	}
 
 	f.SetFromData(data)

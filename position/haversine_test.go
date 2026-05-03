@@ -1,9 +1,8 @@
-package position_test
+package position
 
 import (
 	"testing"
 
-	. "github.com/Luzifer/go_helpers/position"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -25,6 +24,6 @@ func TestHaversine(t *testing.T) {
 
 	for i := range testCases {
 		tc := testCases[i]
-		assert.Equal(t, tc.Distance, Haversine(tc.SourceLon, tc.SourceLat, tc.DestLon, tc.DestLat))
+		assert.InDelta(t, tc.Distance, Haversine(tc.SourceLon, tc.SourceLat, tc.DestLon, tc.DestLat), 0)
 	}
 }

@@ -1,3 +1,4 @@
+// Package cache defines appauth session cache primitives.
 package cache
 
 import (
@@ -8,8 +9,13 @@ import (
 type (
 	// Cache describes what to implement when building a cache provider
 	Cache interface {
+		// GetSession returns the session for the given ID.
 		GetSession(id string) (Session, error)
+
+		// RemoveSession removes the session for the given ID.
 		RemoveSession(id string) error
+
+		// SetSession stores the session for the given ID.
 		SetSession(id string, sess Session) error
 	}
 

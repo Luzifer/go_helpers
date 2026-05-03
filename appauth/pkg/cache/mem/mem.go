@@ -1,3 +1,4 @@
+// Package mem provides an in-memory appauth session cache.
 package mem
 
 import (

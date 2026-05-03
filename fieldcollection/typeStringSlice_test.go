@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestStringSlice(t *testing.T) {
@@ -16,23 +17,23 @@ func TestStringSlice(t *testing.T) {
 	})
 
 	_, err := fc.StringSlice("_")
-	assert.ErrorIs(t, err, ErrValueNotSet)
+	require.ErrorIs(t, err, ErrValueNotSet)
 
 	_, err = fc.StringSlice("int")
-	assert.ErrorIs(t, err, ErrValueMismatch)
+	require.ErrorIs(t, err, ErrValueMismatch)
 
 	_, err = fc.StringSlice("invalidSlice")
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	_, err = fc.StringSlice("mixed")
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	v, err := fc.StringSlice("valid")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, []string{"ohai"}, v)
 
 	v, err = fc.StringSlice("validAny")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, []string{"ohai"}, v)
 
 	assert.True(t, fc.CanStringSlice("valid"))

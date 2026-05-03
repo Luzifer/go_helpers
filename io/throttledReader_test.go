@@ -1,4 +1,4 @@
-package io
+package io //revive:disable-line:package-naming // kept for historical reasons
 
 import (
 	"crypto/rand"

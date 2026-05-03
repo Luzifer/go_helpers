@@ -1,10 +1,11 @@
+// Package env converts environment-style key-value data between lists and maps.
 package env
 
 import "strings"
 
 // ListToMap converts a list of strings in format KEY=VALUE into a map
 func ListToMap(list []string) map[string]string {
-	out := map[string]string{}
+	out := make(map[string]string)
 	for _, entry := range list {
 		if len(entry) == 0 || entry[0] == '#' {
 			continue
@@ -22,7 +23,7 @@ func ListToMap(list []string) map[string]string {
 
 // MapToList converts a map into a list of strings in format KEY=VALUE
 func MapToList(envMap map[string]string) []string {
-	out := []string{}
+	var out []string
 	for k, v := range envMap {
 		out = append(out, k+"="+v)
 	}

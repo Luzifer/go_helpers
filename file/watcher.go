@@ -2,11 +2,19 @@ package file
 
 import (
 	"crypto/sha256"
+	"fmt"
 	"os"
 	"sync"
 	"time"
+)
 
-	"github.com/pkg/errors"
+// Collection of possible watcher events
+const (
+	WatcherEventInvalid WatcherEvent = iota
+	WatcherEventNoChange
+	WatcherEventFileAppeared
+	WatcherEventFileModified
+	WatcherEventFileVanished
 )
 
 type (
@@ -19,7 +27,7 @@ type (
 		Err           error
 		FilePath      string
 
-		c              chan WatcherEvent
+		c              chan WatcherEvent //revive:disable-line:confusing-naming // this is the real one, C is only a reader to this one
 		checks         []WatcherCheck
 		followSymlinks bool
 		lock           sync.RWMutex
@@ -40,14 +48,6 @@ type (
 		// file instead of the symlink
 		FollowSymlinks bool
 	}
-)
-
-const (
-	WatcherEventInvalid WatcherEvent = iota
-	WatcherEventNoChange
-	WatcherEventFileAppeared
-	WatcherEventFileModified
-	WatcherEventFileVanished
 )
 
 // DefaultWatcherOpts is used when creating the Watcher without
@@ -98,6 +98,7 @@ func NewWatcherWithOpts(filePath string, opts WatcherOpts, interval time.Duratio
 	return w, err
 }
 
+//revive:disable-next-line:confusing-naming // the exported ones are convenience wrappers around this one
 func newWatcher(filePath string, opts WatcherOpts, interval time.Duration, checks ...WatcherCheck) (*Watcher, error) {
 	notify := make(chan WatcherEvent, 1)
 
@@ -111,10 +112,13 @@ func newWatcher(filePath string, opts WatcherOpts, interval time.Duration, check
 		followSymlinks: opts.FollowSymlinks,
 		stateCache:     make(map[string]any),
 	}
-	// Initially run checks once
-	_, err := w.runStateChecks()
 
-	return w, errors.Wrap(err, "executing initial checks")
+	// Initially run checks once
+	if _, err := w.runStateChecks(); err != nil {
+		return nil, fmt.Errorf("executing initial checks: %w", err)
+	}
+
+	return w, nil
 }
 
 // GetState is a helper to retrieve state from the internal store for
@@ -156,7 +160,7 @@ func (w *Watcher) runStateChecks() (WatcherEvent, error) {
 	for _, c := range w.checks {
 		evt, err := c(w)
 		if err != nil {
-			return WatcherEventInvalid, errors.Wrap(err, "checking file state")
+			return WatcherEventInvalid, fmt.Errorf("checking file state: %w", err)
 		}
 
 		if evt == WatcherEventNoChange {
@@ -171,10 +175,15 @@ func (w *Watcher) runStateChecks() (WatcherEvent, error) {
 	return WatcherEventNoChange, nil
 }
 
-func (w *Watcher) stat(filePath string) (os.FileInfo, error) {
+func (w *Watcher) stat(filePath string) (fi os.FileInfo, err error) {
 	if w.followSymlinks {
-		return os.Stat(filePath)
+		fi, err = os.Stat(filePath)
+	} else {
+		fi, err = os.Lstat(filePath)
+	}
+	if err != nil {
+		return fi, fmt.Errorf("getting stat: %w", err)
 	}
 
-	return os.Lstat(filePath)
+	return fi, nil
 }

@@ -22,13 +22,19 @@ const (
 )
 
 // Backoff holds the configuration for backoff function retries
-type Backoff struct {
-	MaxIterations    uint64
-	MaxIterationTime time.Duration
-	MaxTotalTime     time.Duration
-	MinIterationTime time.Duration
-	Multiplier       float64
-}
+type (
+	Backoff struct {
+		MaxIterations    uint64
+		MaxIterationTime time.Duration
+		MaxTotalTime     time.Duration
+		MinIterationTime time.Duration
+		Multiplier       float64
+	}
+
+	// Retryable is a function which takes no parameters and yields an error
+	// when it should be retried and nil when it was successful
+	Retryable func() error
+)
 
 // NewBackoff creates a new Backoff configuration with default values (see constants)
 func NewBackoff() *Backoff {
@@ -83,17 +89,17 @@ func (b Backoff) Retry(f Retryable) error {
 	}
 }
 
-// WithMaxIterations is a wrapper around setting the MaxIterations
-// and then returning the Backoff object to use in chained creation
-func (b *Backoff) WithMaxIterations(v uint64) *Backoff {
-	b.MaxIterations = v
-	return b
-}
-
 // WithMaxIterationTime is a wrapper around setting the MaxIterationTime
 // and then returning the Backoff object to use in chained creation
 func (b *Backoff) WithMaxIterationTime(v time.Duration) *Backoff {
 	b.MaxIterationTime = v
+	return b
+}
+
+// WithMaxIterations is a wrapper around setting the MaxIterations
+// and then returning the Backoff object to use in chained creation
+func (b *Backoff) WithMaxIterations(v uint64) *Backoff {
+	b.MaxIterations = v
 	return b
 }
 
@@ -119,16 +125,9 @@ func (b *Backoff) WithMultiplier(v float64) *Backoff {
 }
 
 func (b Backoff) nextIterationSleep(currentSleep time.Duration) time.Duration {
-	next := time.Duration(float64(currentSleep) * b.Multiplier)
-	if next > b.MaxIterationTime {
-		next = b.MaxIterationTime
-	}
+	next := min(time.Duration(float64(currentSleep)*b.Multiplier), b.MaxIterationTime)
 	return next
 }
-
-// Retryable is a function which takes no parameters and yields an error
-// when it should be retried and nil when it was successful
-type Retryable func() error
 
 // Retry is a convenience wrapper to execute the retry with default values
 // (see exported constants)

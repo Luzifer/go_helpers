@@ -11,16 +11,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestWatcherCheckHash(t *testing.T) {
-	testDir, err := os.MkdirTemp("", "")
-	require.NoError(t, err, "creating test-tempdir")
-	t.Cleanup(func() {
-		if err := os.RemoveAll(testDir); err != nil {
-			t.Logf("failed to clean tempdir %q: %s", testDir, err)
-		}
-	})
+const fileWritePermission = 0o600
 
-	testFile := path.Join(testDir, "test.txt")
+func TestWatcherCheckHash(t *testing.T) {
+	var (
+		testDir  = t.TempDir()
+		testFile = path.Join(testDir, "test.txt")
+	)
 
 	w, err := newWatcher(testFile, DefaultWatcherOpts, time.Second, WatcherCheckHash(sha256.New))
 	require.NoError(t, err, "initial check should not error on non existing file")
@@ -29,7 +26,7 @@ func TestWatcherCheckHash(t *testing.T) {
 	require.NoError(t, err, "check should not error on non existing file")
 	assert.Equal(t, WatcherEventInvalid, evt, "expect invalid as file is still missing")
 
-	err = os.WriteFile(testFile, []byte("test"), 0o644)
+	err = os.WriteFile(testFile, []byte("test"), fileWritePermission)
 	require.NoError(t, err, "creating test file")
 
 	evt, err = w.runStateChecks()
@@ -40,7 +37,7 @@ func TestWatcherCheckHash(t *testing.T) {
 	require.NoError(t, err, "check should not error on existing file")
 	assert.Equal(t, WatcherEventNoChange, evt, "expect no change as the file has the same hash")
 
-	err = os.WriteFile(testFile, []byte("hello world"), 0o644)
+	err = os.WriteFile(testFile, []byte("hello world"), fileWritePermission)
 	require.NoError(t, err, "updating test file")
 
 	evt, err = w.runStateChecks()
@@ -54,7 +51,7 @@ func TestWatcherCheckHash(t *testing.T) {
 	require.NoError(t, err, "check should not error on non existing file")
 	assert.Equal(t, WatcherEventInvalid, evt, "expect check to be invalid as file is no longer there")
 
-	err = os.WriteFile(testFile, []byte("hello world"), 0o644)
+	err = os.WriteFile(testFile, []byte("hello world"), fileWritePermission)
 	require.NoError(t, err, "updating test file")
 
 	evt, err = w.runStateChecks()
@@ -63,15 +60,10 @@ func TestWatcherCheckHash(t *testing.T) {
 }
 
 func TestWatcherCheckMtime(t *testing.T) {
-	testDir, err := os.MkdirTemp("", "")
-	require.NoError(t, err, "creating test-tempdir")
-	t.Cleanup(func() {
-		if err := os.RemoveAll(testDir); err != nil {
-			t.Logf("failed to clean tempdir %q: %s", testDir, err)
-		}
-	})
-
-	testFile := path.Join(testDir, "test.txt")
+	var (
+		testDir  = t.TempDir()
+		testFile = path.Join(testDir, "test.txt")
+	)
 
 	w, err := newWatcher(testFile, DefaultWatcherOpts, time.Second, WatcherCheckMtime)
 	require.NoError(t, err, "initial check should not error on non existing file")
@@ -80,7 +72,7 @@ func TestWatcherCheckMtime(t *testing.T) {
 	require.NoError(t, err, "check should not error on non existing file")
 	assert.Equal(t, WatcherEventInvalid, evt, "expect invalid as file is still missing")
 
-	err = os.WriteFile(testFile, []byte("test"), 0o644)
+	err = os.WriteFile(testFile, []byte("test"), fileWritePermission)
 	require.NoError(t, err, "creating test file")
 
 	evt, err = w.runStateChecks()
@@ -93,7 +85,7 @@ func TestWatcherCheckMtime(t *testing.T) {
 
 	time.Sleep(time.Second) // Unix mtime is second-based, wait a moment
 
-	err = os.WriteFile(testFile, []byte("hello world"), 0o644)
+	err = os.WriteFile(testFile, []byte("hello world"), fileWritePermission)
 	require.NoError(t, err, "updating test file")
 
 	evt, err = w.runStateChecks()
@@ -109,7 +101,7 @@ func TestWatcherCheckMtime(t *testing.T) {
 
 	time.Sleep(time.Second) // Unix mtime is second-based, wait a moment
 
-	err = os.WriteFile(testFile, []byte("hello world"), 0o644)
+	err = os.WriteFile(testFile, []byte("hello world"), fileWritePermission)
 	require.NoError(t, err, "updating test file")
 
 	evt, err = w.runStateChecks()
@@ -118,15 +110,10 @@ func TestWatcherCheckMtime(t *testing.T) {
 }
 
 func TestWatcherCheckPresence(t *testing.T) {
-	testDir, err := os.MkdirTemp("", "")
-	require.NoError(t, err, "creating test-tempdir")
-	t.Cleanup(func() {
-		if err := os.RemoveAll(testDir); err != nil {
-			t.Logf("failed to clean tempdir %q: %s", testDir, err)
-		}
-	})
-
-	testFile := path.Join(testDir, "test.txt")
+	var (
+		testDir  = t.TempDir()
+		testFile = path.Join(testDir, "test.txt")
+	)
 
 	w, err := newWatcher(testFile, DefaultWatcherOpts, time.Second, WatcherCheckPresence)
 	require.NoError(t, err, "initial check should not error on non existing file")
@@ -135,7 +122,7 @@ func TestWatcherCheckPresence(t *testing.T) {
 	require.NoError(t, err, "check should not error on non existing file")
 	assert.Equal(t, WatcherEventNoChange, evt, "expect no change as file is still missing")
 
-	err = os.WriteFile(testFile, []byte("test"), 0o644)
+	err = os.WriteFile(testFile, []byte("test"), fileWritePermission)
 	require.NoError(t, err, "creating test file")
 
 	evt, err = w.runStateChecks()
@@ -155,15 +142,10 @@ func TestWatcherCheckPresence(t *testing.T) {
 }
 
 func TestWatcherCheckSize(t *testing.T) {
-	testDir, err := os.MkdirTemp("", "")
-	require.NoError(t, err, "creating test-tempdir")
-	t.Cleanup(func() {
-		if err := os.RemoveAll(testDir); err != nil {
-			t.Logf("failed to clean tempdir %q: %s", testDir, err)
-		}
-	})
-
-	testFile := path.Join(testDir, "test.txt")
+	var (
+		testDir  = t.TempDir()
+		testFile = path.Join(testDir, "test.txt")
+	)
 
 	w, err := newWatcher(testFile, DefaultWatcherOpts, time.Second, WatcherCheckSize)
 	require.NoError(t, err, "initial check should not error on non existing file")
@@ -172,21 +154,21 @@ func TestWatcherCheckSize(t *testing.T) {
 	require.NoError(t, err, "check should not error on non existing file")
 	assert.Equal(t, WatcherEventInvalid, evt, "expect invalid as file is still missing")
 
-	err = os.WriteFile(testFile, []byte("test"), 0o644)
+	err = os.WriteFile(testFile, []byte("test"), fileWritePermission)
 	require.NoError(t, err, "creating test file")
 
 	evt, err = w.runStateChecks()
 	require.NoError(t, err, "check should not error on existing file")
 	assert.Equal(t, WatcherEventFileModified, evt, "expect change as file has now 4 instead of 0 bytes")
 
-	err = os.WriteFile(testFile, []byte("tset"), 0o644)
+	err = os.WriteFile(testFile, []byte("tset"), fileWritePermission)
 	require.NoError(t, err, "updating test file")
 
 	evt, err = w.runStateChecks()
 	require.NoError(t, err, "check should not error on existing file")
 	assert.Equal(t, WatcherEventNoChange, evt, "expect no change as the file has the same size")
 
-	err = os.WriteFile(testFile, []byte("hello world"), 0o644)
+	err = os.WriteFile(testFile, []byte("hello world"), fileWritePermission)
 	require.NoError(t, err, "updating test file")
 
 	evt, err = w.runStateChecks()
@@ -200,7 +182,7 @@ func TestWatcherCheckSize(t *testing.T) {
 	require.NoError(t, err, "check should not error on non existing file")
 	assert.Equal(t, WatcherEventInvalid, evt, "expect check to be invalid as file is no longer there")
 
-	err = os.WriteFile(testFile, []byte("hello world"), 0o644)
+	err = os.WriteFile(testFile, []byte("hello world"), fileWritePermission)
 	require.NoError(t, err, "updating test file")
 
 	evt, err = w.runStateChecks()

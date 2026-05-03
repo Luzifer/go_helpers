@@ -1,4 +1,4 @@
-package http
+package http //revive:disable-line:package-naming // kept for historical reasons
 
 import (
 	"compress/gzip"
@@ -13,7 +13,7 @@ type gzipResponseWriter struct {
 }
 
 func (w gzipResponseWriter) Write(b []byte) (int, error) {
-	return w.Writer.Write(b)
+	return w.Writer.Write(b) //nolint:wrapcheck // inner error counts, we don't need to say anything to that
 }
 
 // GzipHandler wraps an http.Handler and gzips responses if the client supports it
@@ -25,7 +25,7 @@ func GzipHandler(handler http.Handler) http.Handler {
 		}
 		w.Header().Set("Content-Encoding", "gzip")
 		gz := gzip.NewWriter(w)
-		defer gz.Close()
+		defer gz.Close() //nolint:errcheck // http.Handler cannot return late gzip flush errors once the response may be committed
 		gzw := gzipResponseWriter{Writer: gz, ResponseWriter: w}
 		handler.ServeHTTP(gzw, r)
 	})
@@ -40,7 +40,7 @@ func GzipFunc(f http.HandlerFunc) http.HandlerFunc {
 		}
 		w.Header().Set("Content-Encoding", "gzip")
 		gz := gzip.NewWriter(w)
-		defer gz.Close()
+		defer gz.Close() //nolint:errcheck // http.Handler cannot return late gzip flush errors once the response may be committed
 		gzw := gzipResponseWriter{Writer: gz, ResponseWriter: w}
 		f(gzw, r)
 	}

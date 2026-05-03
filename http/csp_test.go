@@ -1,4 +1,4 @@
-package http
+package http //revive:disable-line:package-naming // kept for historical reasons
 
 import (
 	"testing"

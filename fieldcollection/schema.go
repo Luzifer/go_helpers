@@ -11,6 +11,17 @@ const (
 	knownFields = "knownFields"
 )
 
+// Collection of known field types for which can be checked
+const (
+	SchemaFieldTypeAny SchemaFieldType = iota
+	SchemaFieldTypeBool
+	SchemaFieldTypeDuration
+	SchemaFieldTypeFloat64
+	SchemaFieldTypeInt64
+	SchemaFieldTypeString
+	SchemaFieldTypeStringSlice
+)
+
 type (
 	// SchemaField defines how a field is expected to be
 	SchemaField struct {
@@ -29,17 +40,6 @@ type (
 	// ValidateOpt is a validation function to be executed during the
 	// validation call
 	ValidateOpt func(f, validateStore *FieldCollection) error
-)
-
-// Collection of known field types for which can be checked
-const (
-	SchemaFieldTypeAny SchemaFieldType = iota
-	SchemaFieldTypeBool
-	SchemaFieldTypeDuration
-	SchemaFieldTypeFloat64
-	SchemaFieldTypeInt64
-	SchemaFieldTypeString
-	SchemaFieldTypeStringSlice
 )
 
 // CanHaveField validates the type of the field if it exists and puts
@@ -99,7 +99,7 @@ func MustHaveNoUnknowFields(f *FieldCollection, validateStore *FieldCollection) 
 // or must be there and to check whether there are no surplus fields
 func (f *FieldCollection) ValidateSchema(opts ...ValidateOpt) error {
 	validateStore := NewFieldCollection()
-	validateStore.Set(knownFields, []string{})
+	validateStore.Set(knownFields, ([]string)(nil))
 
 	for _, opt := range opts {
 		if err := opt(f, validateStore); err != nil {

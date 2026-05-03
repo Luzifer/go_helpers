@@ -8,9 +8,10 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/Luzifer/go_helpers/appauth/pkg/cache/mem"
 	"github.com/coreos/go-oidc/v3/oidc"
 	"golang.org/x/oauth2"
+
+	"github.com/Luzifer/go_helpers/appauth/pkg/cache/mem"
 )
 
 // New creats a new Auth adapter

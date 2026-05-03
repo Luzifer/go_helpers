@@ -1,6 +1,6 @@
 package fieldcollection
 
-import "github.com/pkg/errors"
+import "errors"
 
 // CanStringSlice tries to read key name as []string and checks whether error is nil
 func (f *FieldCollection) CanStringSlice(name string) bool {

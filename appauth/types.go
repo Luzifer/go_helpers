@@ -3,10 +3,13 @@ package appauth
 import (
 	"time"
 
-	"github.com/Luzifer/go_helpers/appauth/pkg/cache"
 	"github.com/coreos/go-oidc/v3/oidc"
 	"golang.org/x/oauth2"
+
+	"github.com/Luzifer/go_helpers/appauth/pkg/cache"
 )
+
+const userKey ctxKey = 1
 
 type (
 	// Auth contains the parts required for authentication and authorization
@@ -54,6 +57,7 @@ type (
 	// Logger defines what a log-provider must implement in order to be
 	// usable for this library
 	Logger interface {
+		// Printf logs a formatted message.
 		Printf(format string, v ...any)
 	}
 
@@ -65,5 +69,3 @@ type (
 
 	ctxKey int
 )
-
-const userKey ctxKey = 1

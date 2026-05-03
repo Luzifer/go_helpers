@@ -1,10 +1,10 @@
-package http
+package http //revive:disable-line:package-naming // kept for historical reasons
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
 	"os"
-
-	"github.com/pkg/errors"
 )
 
 type (
@@ -24,18 +24,30 @@ var _ http.FileSystem = NoListFS{}
 func (n NoListFS) Open(name string) (http.File, error) {
 	f, err := n.Next.Open(name)
 	if err != nil {
-		return f, errors.Wrap(err, "opening file from inner fs")
+		return f, fmt.Errorf("opening file from inner fs: %w", err)
 	}
 
 	info, err := f.Stat()
 	if err != nil {
-		f.Close()
-		return nil, errors.Wrap(err, "getting stat from opened file")
+		if closeErr := f.Close(); closeErr != nil {
+			return nil, errors.Join(
+				fmt.Errorf("getting stat from opened file: %w", err),
+				fmt.Errorf("closing file: %w", closeErr),
+			)
+		}
+
+		return nil, fmt.Errorf("getting stat from opened file: %w", err)
 	}
 
 	if info.IsDir() {
-		f.Close()
-		return nil, errors.Wrap(os.ErrNotExist, "refusing to open a directory")
+		if closeErr := f.Close(); closeErr != nil {
+			return nil, errors.Join(
+				fmt.Errorf("refusing to open a directory: %w", os.ErrNotExist),
+				fmt.Errorf("closing file: %w", closeErr),
+			)
+		}
+
+		return nil, fmt.Errorf("refusing to open a directory: %w", os.ErrNotExist)
 	}
 
 	return f, nil

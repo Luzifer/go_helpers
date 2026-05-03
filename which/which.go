@@ -1,7 +1,9 @@
+// Package which locates binaries in directories and PATH.
 package which
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path"
 	"strings"
@@ -9,18 +11,18 @@ import (
 
 // Common named errors to match in programs using this library
 var (
-	ErrBinaryNotFound    = errors.New("Requested binary was not found")
-	ErrNoSearchSpecified = errors.New("You need to specify a binary to search")
+	ErrBinaryNotFound    = errors.New("requested binary was not found")
+	ErrNoSearchSpecified = errors.New("you need to specify a binary to search")
 )
 
 // FindInPath searches the specified binary in directories listed in $PATH and returns first match
 func FindInPath(binary string) (string, error) {
 	pathEnv := os.Getenv("PATH")
 	if len(pathEnv) == 0 {
-		return "", errors.New("Found empty $PATH, not able to search $PATH")
+		return "", errors.New("found empty $PATH, not able to search $PATH")
 	}
 
-	for _, part := range strings.Split(pathEnv, ":") {
+	for part := range strings.SplitSeq(pathEnv, ":") {
 		if len(part) == 0 {
 			continue
 		}
@@ -46,9 +48,11 @@ func FindInDirectory(binary, directory string) (bool, error) {
 	switch {
 	case err == nil:
 		return true, nil
+
 	case os.IsNotExist(err):
 		return false, nil
+
 	default:
-		return false, err
+		return false, fmt.Errorf("getting stat: %w", err)
 	}
 }

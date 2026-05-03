@@ -1,10 +1,9 @@
 package fieldcollection
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
-
-	"github.com/pkg/errors"
 )
 
 // Int64 tries to read key name as int64

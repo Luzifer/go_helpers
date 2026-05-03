@@ -1,10 +1,9 @@
-package env_test
+package env
 
 import (
 	"sort"
 	"testing"
 
-	. "github.com/Luzifer/go_helpers/env"
 	"github.com/stretchr/testify/assert"
 )
 

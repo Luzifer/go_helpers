@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestBool(t *testing.T) {
@@ -16,24 +17,24 @@ func TestBool(t *testing.T) {
 	})
 
 	_, err := fc.Bool("_")
-	assert.ErrorIs(t, err, ErrValueNotSet)
+	require.ErrorIs(t, err, ErrValueNotSet)
 
 	_, err = fc.Bool("int")
-	assert.ErrorIs(t, err, ErrValueMismatch)
+	require.ErrorIs(t, err, ErrValueMismatch)
 
 	_, err = fc.Bool("invalidBoolString")
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	v, err := fc.Bool("validBool")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.True(t, v)
 
 	v, err = fc.Bool("validBoolString")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.True(t, v)
 
 	v, err = fc.Bool("validBoolStringFalse")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.False(t, v)
 
 	assert.True(t, fc.CanBool("validBool"))

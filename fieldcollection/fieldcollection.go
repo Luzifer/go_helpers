@@ -3,17 +3,11 @@
 package fieldcollection
 
 import (
+	"errors"
+	"fmt"
+	"maps"
 	"strings"
 	"sync"
-
-	"github.com/pkg/errors"
-)
-
-var (
-	// ErrValueNotSet signalizes the value does not exist in the map
-	ErrValueNotSet = errors.New("specified value not found")
-	// ErrValueMismatch signalizes the value has a different data type
-	ErrValueMismatch = errors.New("specified value has different format")
 )
 
 type (
@@ -25,6 +19,13 @@ type (
 	}
 )
 
+var (
+	// ErrValueNotSet signalizes the value does not exist in the map
+	ErrValueNotSet = errors.New("specified value not found")
+	// ErrValueMismatch signalizes the value has a different data type
+	ErrValueMismatch = errors.New("specified value has different format")
+)
+
 // NewFieldCollection creates a new FieldCollection with empty data store
 func NewFieldCollection() *FieldCollection {
 	return &FieldCollection{data: make(map[string]any)}
@@ -32,8 +33,13 @@ func NewFieldCollection() *FieldCollection {
 
 // FieldCollectionFromData is a wrapper around NewFieldCollection and SetFromData
 //
-//revive:disable-next-line:exported
-func FieldCollectionFromData(data map[string]any) *FieldCollection {
+// Deprecated: This is a thin wrapper around FromData, switch to that one.
+//
+//revive:disable-next-line:exported // kept for not breaking the interface
+func FieldCollectionFromData(data map[string]any) *FieldCollection { return FromData(data) }
+
+// FromData is a wrapper around NewFieldCollection and SetFromData
+func FromData(data map[string]any) *FieldCollection {
 	o := NewFieldCollection()
 	o.SetFromData(data)
 	return o
@@ -85,15 +91,10 @@ func (f *FieldCollection) Expect(keys ...string) error {
 	}
 
 	if len(missing) > 0 {
-		return errors.Errorf("missing key(s) %s", strings.Join(missing, ", "))
+		return fmt.Errorf("missing key(s) %s", strings.Join(missing, ", "))
 	}
 
 	return nil
-}
-
-// HasAll takes a list of keys and returns whether all of them exist inside the FieldCollection
-func (f *FieldCollection) HasAll(keys ...string) bool {
-	return f.Expect(keys...) == nil
 }
 
 // Get retrieves the value of a key as "any" type or returns an error
@@ -112,6 +113,11 @@ func (f *FieldCollection) Get(name string) (any, error) {
 	}
 
 	return v, nil
+}
+
+// HasAll takes a list of keys and returns whether all of them exist inside the FieldCollection
+func (f *FieldCollection) HasAll(keys ...string) bool {
+	return f.Expect(keys...) == nil
 }
 
 // Keys returns a list of all known keys
@@ -147,7 +153,5 @@ func (f *FieldCollection) SetFromData(data map[string]any) {
 		f.data = make(map[string]any)
 	}
 
-	for key, value := range data {
-		f.data[key] = value
-	}
+	maps.Copy(f.data, data)
 }

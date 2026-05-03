@@ -1,12 +1,10 @@
-package http
+package http //revive:disable-line:package-naming // kept for historical reasons
 
 import (
 	"fmt"
 	"io"
 	"net/http"
 	"net/http/httputil"
-
-	"github.com/pkg/errors"
 )
 
 type (
@@ -42,20 +40,20 @@ func NewLogRoundTripper(next http.RoundTripper, out io.Writer) LogRoundTripper {
 func (l LogRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	dump, err := httputil.DumpRequest(req, true)
 	if err != nil {
-		return nil, errors.Wrap(err, "dumping request")
+		return nil, fmt.Errorf("dumping request: %w", err)
 	}
 
-	fmt.Fprintf(l.output, "---- 8< REQ >8 ----\n%s", dump)
+	fmt.Fprintf(l.output, "---- 8< REQ >8 ----\n%s", dump) //nolint:errcheck // logger output errors must not break the request
 
 	resp, err := l.next.RoundTrip(req)
 	if err != nil {
-		return resp, err
+		return resp, fmt.Errorf("executing request: %w", err)
 	}
 	if dump, err = httputil.DumpResponse(resp, true); err != nil {
-		return nil, errors.Wrap(err, "dumping response")
+		return nil, fmt.Errorf("dumping response: %w", err)
 	}
 
-	fmt.Fprintf(l.output, "---- 8< RES >8 ----\n%s---- 8< END >8 ----\n", dump)
+	fmt.Fprintf(l.output, "---- 8< RES >8 ----\n%s---- 8< END >8 ----\n", dump) //nolint:errcheck // logger output errors must not break the request
 
-	return resp, err
+	return resp, nil
 }

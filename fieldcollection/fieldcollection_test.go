@@ -4,12 +4,13 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestExpect(t *testing.T) {
 	var f *FieldCollection
-	assert.NoError(t, f.Expect())
-	assert.Error(t, f.Expect("foo"))
+	require.NoError(t, f.Expect())
+	require.Error(t, f.Expect("foo"))
 }
 
 func TestFieldCollectionNilClone(*testing.T) {
@@ -34,14 +35,14 @@ func TestFieldCollectionNilDataGet(t *testing.T) {
 func TestGet(t *testing.T) {
 	f := &FieldCollection{}
 	_, err := f.Get("foo")
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	f.Set("foo", "bar")
 	_, err = f.Get("bar")
-	assert.ErrorIs(t, err, ErrValueNotSet)
+	require.ErrorIs(t, err, ErrValueNotSet)
 
 	v, err := f.Get("foo")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "bar", v)
 }
 

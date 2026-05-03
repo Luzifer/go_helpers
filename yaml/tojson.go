@@ -13,7 +13,7 @@ import (
 // ToJSON takes an io.Reader containing YAML source and converts it into
 // a JSON representation of the YAML object.
 func ToJSON(in io.Reader) (io.Reader, error) {
-	var body interface{}
+	var body any
 
 	if err := yaml.NewDecoder(in).Decode(&body); err != nil {
 		return nil, fmt.Errorf("unmarshaling YAML: %s", err)
@@ -30,18 +30,20 @@ func ToJSON(in io.Reader) (io.Reader, error) {
 }
 
 // Source: https://stackoverflow.com/a/40737676/1741281
-func convert(i interface{}) interface{} {
+func convert(i any) any {
 	switch x := i.(type) {
-	case map[interface{}]interface{}:
-		m2 := map[string]interface{}{}
+	case map[any]any:
+		m2 := make(map[string]any)
 		for k, v := range x {
 			m2[k.(string)] = convert(v)
 		}
 		return m2
-	case []interface{}:
+
+	case []any:
 		for i, v := range x {
 			x[i] = convert(v)
 		}
 	}
+
 	return i
 }

@@ -1,3 +1,4 @@
+// Package str provides string slice helpers.
 package str
 
 import "slices"

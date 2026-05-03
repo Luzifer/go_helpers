@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestFloat64(t *testing.T) {
@@ -19,33 +20,33 @@ func TestFloat64(t *testing.T) {
 	})
 
 	_, err := fc.Float64("_")
-	assert.ErrorIs(t, err, ErrValueNotSet)
+	require.ErrorIs(t, err, ErrValueNotSet)
 
 	_, err = fc.Float64("bool")
-	assert.ErrorIs(t, err, ErrValueMismatch)
+	require.ErrorIs(t, err, ErrValueMismatch)
 
 	_, err = fc.Float64("invalidString")
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	v, err := fc.Float64("int")
-	assert.NoError(t, err)
-	assert.Equal(t, float64(12), v)
+	require.NoError(t, err)
+	assert.InEpsilon(t, float64(12), v, 0)
 
 	v, err = fc.Float64("int16")
-	assert.NoError(t, err)
-	assert.Equal(t, float64(12), v)
+	require.NoError(t, err)
+	assert.InEpsilon(t, float64(12), v, 0)
 
 	v, err = fc.Float64("int32")
-	assert.NoError(t, err)
-	assert.Equal(t, float64(12), v)
+	require.NoError(t, err)
+	assert.InEpsilon(t, float64(12), v, 0)
 
 	v, err = fc.Float64("int64")
-	assert.NoError(t, err)
-	assert.Equal(t, float64(12), v)
+	require.NoError(t, err)
+	assert.InEpsilon(t, float64(12), v, 0)
 
 	v, err = fc.Float64("validString")
-	assert.NoError(t, err)
-	assert.Equal(t, float64(12), v)
+	require.NoError(t, err)
+	assert.InEpsilon(t, float64(12), v, 0)
 
 	assert.True(t, fc.CanFloat64("int"))
 	assert.False(t, fc.CanFloat64("bool"))
@@ -53,5 +54,5 @@ func TestFloat64(t *testing.T) {
 	assert.NotPanics(t, func() { fc.MustFloat64("int32", nil) })
 	assert.Panics(t, func() { fc.MustFloat64("bool", nil) })
 
-	assert.Equal(t, float64(5), fc.MustFloat64("_", func(v float64) *float64 { return &v }(5)))
+	assert.InEpsilon(t, float64(5), fc.MustFloat64("_", func(v float64) *float64 { return &v }(5)), 0)
 }

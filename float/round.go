@@ -1,3 +1,4 @@
+// Package float provides helpers for floating point values.
 package float
 
 import "math"

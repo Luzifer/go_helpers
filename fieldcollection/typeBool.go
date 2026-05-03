@@ -1,9 +1,9 @@
 package fieldcollection
 
 import (
+	"errors"
+	"fmt"
 	"strconv"
-
-	"github.com/pkg/errors"
 )
 
 // Bool tries to read key name as bool
@@ -25,7 +25,11 @@ func (f *FieldCollection) Bool(name string) (bool, error) {
 		return v, nil
 	case string:
 		bv, err := strconv.ParseBool(v)
-		return bv, errors.Wrap(err, "parsing string to bool")
+		if err != nil {
+			return false, fmt.Errorf("parsing string to bool: %w", err)
+		}
+
+		return bv, nil
 	}
 
 	return false, ErrValueMismatch

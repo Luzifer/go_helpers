@@ -1,4 +1,5 @@
-package time
+// Package time contains helpers for parsing time values.
+package time //revive:disable-line:package-naming // kept for historical reasons
 
 import (
 	"errors"
@@ -7,7 +8,7 @@ import (
 
 // ErrParseNotPossible describes a collected error which is returned
 // when the given date value could not be parsed with any given layout
-var ErrParseNotPossible = errors.New("No layout matched given value or other error occurred")
+var ErrParseNotPossible = errors.New("no layout matched given value or other error occurred")
 
 // MultiParse takes multiple layout strings and tries to parse the
 // value with them. In case none of the layouts matches or another error

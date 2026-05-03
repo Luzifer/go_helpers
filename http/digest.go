@@ -1,32 +1,44 @@
-package http
+package http //revive:disable-line:package-naming // kept for historical reasons
 
 import (
-	"crypto/md5"
+	"crypto/md5" //#nosec:G501 // required for RFC-compatible Digest MD5
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
 	"io"
 	"net/http"
+	"slices"
 	"strings"
-
-	"github.com/Luzifer/go_helpers/str"
 )
 
+// GetDigestAuth builds a Digest authorization header for the given response challenge.
 func GetDigestAuth(resp *http.Response, method, requestPath, user, password string) string {
-	params := map[string]string{}
-	for _, part := range strings.Split(resp.Header.Get("Www-Authenticate"), " ") {
+	auth, err := GetDigestAuthWithError(resp, method, requestPath, user, password)
+	if err != nil {
+		return ""
+	}
+
+	return auth
+}
+
+// GetDigestAuthWithError builds a Digest authorization header for the given response challenge.
+func GetDigestAuthWithError(resp *http.Response, method, requestPath, user, password string) (string, error) {
+	params := make(map[string]string)
+	for part := range strings.SplitSeq(resp.Header.Get("Www-Authenticate"), " ") {
 		if !strings.Contains(part, `="`) {
 			continue
 		}
 		spl := strings.Split(strings.Trim(part, " ,"), "=")
-		if !str.StringInSlice(spl[0], []string{"nonce", "realm", "qop"}) {
+		if !slices.Contains([]string{"nonce", "realm", "qop"}, spl[0]) {
 			continue
 		}
 		params[spl[0]] = strings.Trim(spl[1], `"`)
 	}
 
 	b := make([]byte, 8)
-	io.ReadFull(rand.Reader, b)
+	if _, err := io.ReadFull(rand.Reader, b); err != nil {
+		return "", fmt.Errorf("generating digest cnonce: %w", err)
+	}
 
 	params["cnonce"] = fmt.Sprintf("%x", b)
 	params["nc"] = "1"
@@ -41,15 +53,15 @@ func GetDigestAuth(resp *http.Response, method, requestPath, user, password stri
 		getMD5([]string{method, requestPath}),
 	})
 
-	authParts := []string{}
+	var authParts []string
 	for k, v := range params {
 		authParts = append(authParts, fmt.Sprintf("%s=%q", k, v))
 	}
-	return "Digest " + strings.Join(authParts, ", ")
+	return "Digest " + strings.Join(authParts, ", "), nil
 }
 
 func getMD5(in []string) string {
-	h := md5.New()
+	h := md5.New() //#nosec:G401 // required for RFC-compatible Digest MD5
 	h.Write([]byte(strings.Join(in, ":")))
 	return hex.EncodeToString(h.Sum(nil))
 }

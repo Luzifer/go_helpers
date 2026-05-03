@@ -1,5 +1,5 @@
 // Package io contains helpers for I/O tasks
-package io
+package io //revive:disable-line:package-naming // kept for historical reasons
 
 import (
 	"errors"
@@ -42,7 +42,7 @@ func (t *ThrottledReader) Read(p []byte) (n int, err error) {
 	}
 
 	// Count the data
-	t.totalReadBytes += uint64(n)
+	t.totalReadBytes += uint64(n) //#nosec:G115 // number of read bytes cannot get negative
 
 	// Now lets see how long we need to wait
 	var (

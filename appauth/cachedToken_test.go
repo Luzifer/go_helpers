@@ -5,9 +5,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Luzifer/go_helpers/appauth/pkg/cache"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/Luzifer/go_helpers/appauth/pkg/cache"
 )
 
 type testCache struct {
@@ -16,7 +17,7 @@ type testCache struct {
 }
 
 func newTestCache() *testCache {
-	return &testCache{sess: map[string]cache.Session{}}
+	return &testCache{sess: make(map[string]cache.Session)}
 }
 
 func (c *testCache) GetSession(id string) (cache.Session, error) {

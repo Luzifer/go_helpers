@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestInt64(t *testing.T) {
@@ -18,32 +19,32 @@ func TestInt64(t *testing.T) {
 	})
 
 	_, err := fc.Int64("_")
-	assert.ErrorIs(t, err, ErrValueNotSet)
+	require.ErrorIs(t, err, ErrValueNotSet)
 
 	_, err = fc.Int64("bool")
-	assert.ErrorIs(t, err, ErrValueMismatch)
+	require.ErrorIs(t, err, ErrValueMismatch)
 
 	_, err = fc.Int64("invalidString")
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	v, err := fc.Int64("int")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, int64(12), v)
 
 	v, err = fc.Int64("int16")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, int64(12), v)
 
 	v, err = fc.Int64("int32")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, int64(12), v)
 
 	v, err = fc.Int64("int64")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, int64(12), v)
 
 	v, err = fc.Int64("validString")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, int64(12), v)
 
 	assert.True(t, fc.CanInt64("int"))

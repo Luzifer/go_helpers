@@ -1,3 +1,4 @@
+// Package cli provides a small registry for sub-command dispatch.
 package cli
 
 import (
@@ -16,7 +17,7 @@ type (
 		sync.Mutex
 	}
 
-	// Entry defines a sub-command with its parameters, description and
+	// RegistryEntry defines a sub-command with its parameters, description and
 	// run function to be called when this command is executed
 	RegistryEntry struct {
 		Description string
@@ -83,9 +84,9 @@ func (c *Registry) help() {
 	sort.Slice(cmds, func(i, j int) bool { return cmds[i].Name < cmds[j].Name })
 
 	tpl := fmt.Sprintf("  %%-%ds  %%s\n", maxCmdLen)
-	fmt.Fprintln(os.Stdout, "Supported sub-commands are:")
+	_, _ = fmt.Fprintln(os.Stdout, "Supported sub-commands are:")
 	for _, cmd := range cmds {
-		fmt.Fprintf(os.Stdout, tpl, cmd.commandDisplay(), cmd.Description)
+		_, _ = fmt.Fprintf(os.Stdout, tpl, cmd.commandDisplay(), cmd.Description)
 	}
 }
 

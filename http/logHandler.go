@@ -7,10 +7,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Luzifer/go_helpers/accesslogger"
 	"github.com/sirupsen/logrus"
+
+	"github.com/Luzifer/go_helpers/accesslogger"
 )
 
+// HTTPLogHandler wraps an HTTP handler and writes access logs for served requests.
+//
+//revive:disable-next-line:exported // name kept for compatibility
 type HTTPLogHandler struct {
 	Handler          http.Handler
 	TrustedIPHeaders []string
@@ -18,10 +22,12 @@ type HTTPLogHandler struct {
 	logger logrus.StdLogger
 }
 
+// NewHTTPLogHandler wraps h with access logging to stderr.
 func NewHTTPLogHandler(h http.Handler) http.Handler {
 	return NewHTTPLogHandlerWithLogger(h, log.New(os.Stderr, "", log.LstdFlags))
 }
 
+// NewHTTPLogHandlerWithLogger wraps h with access logging to l.
 func NewHTTPLogHandlerWithLogger(h http.Handler, l logrus.StdLogger) http.Handler {
 	return HTTPLogHandler{
 		Handler:          h,

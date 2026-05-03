@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 type (
@@ -20,20 +21,20 @@ func TestString(t *testing.T) {
 	})
 
 	_, err := fc.String("_")
-	assert.ErrorIs(t, err, ErrValueNotSet)
+	require.ErrorIs(t, err, ErrValueNotSet)
 
 	_, err = fc.String("int")
-	assert.ErrorIs(t, err, ErrValueMismatch)
+	require.ErrorIs(t, err, ErrValueMismatch)
 
 	_, err = fc.String("invalidString")
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	v, err := fc.String("validString")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "Ello!", v)
 
 	v, err = fc.String("stringer")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "ohai", v)
 
 	assert.True(t, fc.CanString("validString"))
