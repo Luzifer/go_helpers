@@ -1,0 +1,2 @@
+# required for linter, should not persistently exist
+/go.mod
