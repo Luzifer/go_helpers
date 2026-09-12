@@ -8,23 +8,13 @@ on:
 
 jobs:
   test:
-    strategy:
-      fail-fast: false
-      matrix:
-        go_version:
-          - '1.26'
-          - '1.27'
-          - 'latest'
-
     defaults:
       run:
         shell: sh
 
-    container:
-      image: golang:${{ matrix.go_version }}
-      env:
-        CGO_ENABLED: 0
-        GOPATH: /go
+    env:
+      CGO_ENABLED: 0
+      GOPATH: /go
 
     runs-on: forgejo
 
