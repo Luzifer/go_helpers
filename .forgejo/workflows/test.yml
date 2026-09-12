@@ -1,6 +1,7 @@
 name: test-and-build
 
-on: [push]
+on:
+  push: {}
 
 jobs:
   test:
@@ -8,11 +9,9 @@ jobs:
       run:
         shell: sh
 
-    container:
-      image: ghcr.io/luzifer-docker/action-env:2026.37.0@sha256:0761a59a47232579d833dcdf7878a2e49be4a84e26b45d6e1a24acc0424b8774
-      env:
-        CGO_ENABLED: 0
-        GOPATH: /go
+    env:
+      CGO_ENABLED: 0
+      GOPATH: /go
 
     runs-on: forgejo
 
