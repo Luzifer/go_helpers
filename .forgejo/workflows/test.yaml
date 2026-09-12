@@ -37,7 +37,9 @@ jobs:
 
     env:
       CGO_ENABLED: 0
+      GONOSUMDB: git.luzifer.io
       GOPATH: /go
+      GOPRIVATE: git.luzifer.io
 
     runs-on: forgejo
 
