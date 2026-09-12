@@ -1,0 +1,71 @@
+name: test-and-build
+
+on:
+  pull_request: {}
+  push:
+    branches:
+      - master
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        go_version:
+          - '1.26'
+          - '1.27'
+          - 'latest'
+
+    defaults:
+      run:
+        shell: sh
+
+    container:
+      image: golang:${{ matrix.go_version }}
+      env:
+        CGO_ENABLED: 0
+        GOPATH: /go
+
+    runs-on: forgejo
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Check module metadata
+        run: make check-tidy
+
+      - name: Test code
+        run: make test
+
+  tag:
+    if: forgejo.event_name == 'push' && forgejo.ref == 'refs/heads/master'
+    needs: test
+
+    concurrency:
+      cancel-in-progress: false
+      group: tag-master
+
+    env:
+      CGO_ENABLED: 0
+      GOPATH: /go
+
+    runs-on: forgejo
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Tag modules
+        run: |
+          git fetch --tags origin master:refs/remotes/origin/master
+
+          if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/master)" ]; then
+            echo "Skipping superseded master commit"
+            exit 0
+          fi
+
+          go install git.luzifer.io/luzifer/semver-from-commits@latest
+          export PATH="${GOPATH}/bin:${PATH}"
+          bash ci/tag-all.sh
+          git push --atomic origin --tags

@@ -1,5 +1,9 @@
 default:
 
+.PHONY: check-tidy
+check-tidy:
+	bash ci/check-tidy.sh
+
 .PHONY: go.work
 go.work:
 	go work init || true
