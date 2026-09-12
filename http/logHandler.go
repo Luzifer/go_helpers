@@ -60,7 +60,7 @@ func (l HTTPLogHandler) ServeHTTP(res http.ResponseWriter, r *http.Request) {
 }
 
 func (l HTTPLogHandler) findIP(r *http.Request) string {
-	remoteAddr := strings.SplitN(r.RemoteAddr, ":", 2)[0]
+	remoteAddr, _, _ := strings.Cut(r.RemoteAddr, ":")
 
 	for _, hdr := range l.TrustedIPHeaders {
 		if value := r.Header.Get(hdr); value != "" {

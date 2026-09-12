@@ -13,7 +13,7 @@ import (
 // fs.ErrNotExist will determine the response of this stack.
 type FSStack []fs.FS
 
-var _ fs.FS = (FSStack)(nil)
+var _ fs.FS = FSStack(nil)
 
 // Open iterates the FSStack starting at index 0, going up and returns
 // the first non fs.ErrNotExist response. If all layers responds with

@@ -24,7 +24,7 @@ func GetDigestAuth(resp *http.Response, method, requestPath, user, password stri
 // GetDigestAuthWithError builds a Digest authorization header for the given response challenge.
 func GetDigestAuthWithError(resp *http.Response, method, requestPath, user, password string) (string, error) {
 	params := make(map[string]string)
-	for part := range strings.SplitSeq(resp.Header.Get("Www-Authenticate"), " ") {
+	for part := range strings.SplitSeq(resp.Header.Get("WWW-Authenticate"), " ") {
 		if !strings.Contains(part, `="`) {
 			continue
 		}
