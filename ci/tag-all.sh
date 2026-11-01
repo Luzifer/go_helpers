@@ -24,7 +24,7 @@ done < <(find . -name 'go.mod' -print0 | sort -z)
 for module in "${modules[@]}"; do
   log "Working in ${module}..."
 
-  version="$(semver-from-commits -f "${module}")"
+  version="$(semver-from-commits --bump=chore=patch -f "${module}")"
   if [[ ! ${version} =~ ^[0-9]+\.[0-9]+\.[0-9]+([+-][0-9A-Za-z.-]+)?$ ]]; then
     log "  => Refusing invalid semantic version: ${version}"
     exit 1
