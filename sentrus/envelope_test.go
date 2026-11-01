@@ -3,6 +3,8 @@ package sentrus
 import (
 	"encoding/json"
 	"errors"
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 	"time"
@@ -31,7 +33,6 @@ func TestBuildEnvelope(t *testing.T) {
 	require.Len(t, builtEvent.Exception.Values, 1)
 	assert.Equal(t, "*errors.errorString", builtEvent.Exception.Values[0].Type)
 	assert.Equal(t, "broken", builtEvent.Exception.Values[0].Value)
-	assert.NotEmpty(t, builtEvent.Exception.Values[0].Stacktrace.Frames)
 
 	payload, err := buildEnvelope(builtEvent)
 	require.NoError(t, err)
@@ -64,6 +65,27 @@ func TestBuildSyntheticException(t *testing.T) {
 	assert.Nil(t, event.Extra)
 }
 
+func TestCaptureFrames(t *testing.T) {
+	var captured []frame
+	handler := http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
+		captured = captureFrames()
+	})
+	handler.ServeHTTP(httptest.NewRecorder(), httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil))
+
+	require.NotEmpty(t, captured)
+	var foundHandler bool
+	for _, capturedFrame := range captured {
+		assert.False(t, shouldSkipFrame(capturedFrame.Function))
+		assert.True(t, capturedFrame.InApp)
+		if capturedFrame.Function == "net/http.HandlerFunc.ServeHTTP" {
+			foundHandler = true
+			assert.NotEmpty(t, capturedFrame.Filename)
+			assert.Positive(t, capturedFrame.LineNo)
+		}
+	}
+	assert.True(t, foundHandler)
+}
+
 func TestBuildEnvelopeRejectsUnsupportedExtra(t *testing.T) {
 	event, err := buildEvent(&logrus.Entry{
 		Data:  logrus.Fields{"callback": func() {}},
@@ -75,10 +97,23 @@ func TestBuildEnvelopeRejectsUnsupportedExtra(t *testing.T) {
 }
 
 func TestFrameHelpers(t *testing.T) {
-	assert.False(t, isInApp("runtime.main"))
-	assert.False(t, isInApp("github.com/sirupsen/logrus.(*Entry).log"))
-	assert.False(t, isInApp("github.com/Luzifer/go_helpers/sentrus.captureFrames"))
-	assert.True(t, isInApp("example.com/app.run"))
+	for _, function := range []string{
+		"github.com/Luzifer/go_helpers/sentrus.captureFrames",
+		"github.com/sirupsen/logrus.(*Entry).log",
+		"runtime.main",
+		"testing.tRunner",
+	} {
+		assert.True(t, shouldSkipFrame(function), function)
+	}
+
+	for _, function := range []string{
+		"example.com/app.run",
+		"github.com/sirupsen/logruswrapper.Log",
+		"net/http.(*conn).serve",
+		"runtimehelper.Run",
+	} {
+		assert.False(t, shouldSkipFrame(function), function)
+	}
 }
 
 func TestSentryLevels(t *testing.T) {

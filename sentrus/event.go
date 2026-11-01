@@ -53,6 +53,13 @@ type (
 	}
 )
 
+var skippedFramePackages = map[string]struct{}{
+	"github.com/Luzifer/go_helpers/sentrus": {},
+	"github.com/sirupsen/logrus":            {},
+	"runtime":                               {},
+	"testing":                               {},
+}
+
 func buildEvent(entry *logrus.Entry, cfg config) (event, error) {
 	eventID, err := newEventID()
 	if err != nil {
@@ -90,12 +97,14 @@ func captureFrames() []frame {
 
 	for {
 		runtimeFrame, more := iterator.Next()
-		frames = append(frames, frame{
-			Filename: runtimeFrame.File,
-			Function: runtimeFrame.Function,
-			InApp:    isInApp(runtimeFrame.Function),
-			LineNo:   runtimeFrame.Line,
-		})
+		if !shouldSkipFrame(runtimeFrame.Function) {
+			frames = append(frames, frame{
+				Filename: runtimeFrame.File,
+				Function: runtimeFrame.Function,
+				InApp:    true,
+				LineNo:   runtimeFrame.Line,
+			})
+		}
 		if !more {
 			break
 		}
@@ -129,12 +138,6 @@ func extrasFromEntry(entry *logrus.Entry) map[string]any {
 	return extra
 }
 
-func isInApp(function string) bool {
-	return !strings.HasPrefix(function, "github.com/Luzifer/go_helpers/sentrus.") &&
-		!strings.HasPrefix(function, "github.com/sirupsen/logrus.") &&
-		!strings.HasPrefix(function, "runtime.")
-}
-
 func newEventID() (string, error) {
 	raw := make([]byte, 16)
 	if _, err := rand.Read(raw); err != nil {
@@ -142,6 +145,16 @@ func newEventID() (string, error) {
 	}
 
 	return hex.EncodeToString(raw), nil
+}
+
+func shouldSkipFrame(function string) bool {
+	for packageName := range skippedFramePackages {
+		if strings.HasPrefix(function, packageName+".") {
+			return true
+		}
+	}
+
+	return false
 }
 
 func sentryLevel(level logrus.Level) string {
